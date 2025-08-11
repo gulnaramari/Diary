@@ -21,8 +21,9 @@ class LabBook(models.Model):
     owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Создал',
                               related_name='diary_entry')
 
+
     def __str__(self):
-        """Метод для описания человеко читаемого вида модели "Запись в дневнике"."""
+        """Метод для описания человеко читаемого вида модели "Запись в рабочем журнале"."""
         return f'\nЗапись в дневнике: {self.title} от {self.updated_at}.'
 
     class Meta:
