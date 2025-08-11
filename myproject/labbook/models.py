@@ -1,52 +1,53 @@
 from django.core.validators import FileExtensionValidator
 from django.db import models
-from users.validators import validate_image_size
-from users.models import User
+from django.utils import timezone
+from users.models import Employee
 
 
-class LabBook(models.Model):
-    """Класс модели "Запись в рабочем журнале"."""
-    title = models.CharField(max_length=150, verbose_name='Заголовок')
-    text = models.TextField(null=True, blank=True, verbose_name='Текст')
-    picture = (models.ImageField
-               (upload_to='personal_diary/images', null=True, blank=True, verbose_name='Изображение',
-                validators=[validate_image_size,
-                            FileExtensionValidator(['jpg', 'png'],
-                                                   'Расширение файла « %(extension)s » не допускается. '
-                                                   'Разрешенные расширения: %(allowed_extensions)s .',
-                                                   'Недопустимое расширение!')]))
-    reminder_date = models.DateTimeField(verbose_name='Дата напоминания', blank=True, null=True)
+class ExperimentNote(models.Model):
+    """Класс модели "Запись об эксперименте в рабочем журнале"."""
+    code_of_project = models.CharField(max_length=50, unique=True)
+    title = models.CharField(max_length=255, verbose_name='Название для PDF/отчётов по эксперименту')
+    comments = models.TextField(null=True, blank=True, verbose_name='Особенности эксперимента')
+    status = models.CharField(max_length=16, default="draft", verbose_name="Статус записи")
+    version_of_protocol = models.IntegerField(default=1,)
+    latex_started_at = models.DateTimeField(default=timezone.now, verbose_name="Начало активации латекса")
+    latex_completed_at = models.DateTimeField(default=timezone.now, verbose_name="Завершение активации латекса")
+    is_latex_loss = models.BooleanField(default=False, verbose_name="Оценка потери латекса во время ресуспендирования")
+    owner = models.ForeignKey(Employee, on_delete=models.PROTECT, null=True, blank=True,
+                              verbose_name='Ответственный за запись об эксперименте')
     created_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateField(auto_now=True, verbose_name='Дата последнего изменения')
-    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Создал',
-                              related_name='diary_entry')
-
 
     def __str__(self):
-        """Метод для описания человеко читаемого вида модели "Запись в рабочем журнале"."""
-        return f'\nЗапись в дневнике: {self.title} от {self.updated_at}.'
+        """Метод для описания модели "Запись в рабочем журнале"."""
+        return f'\nЗапись об эксперименте: {self.code_of_project} - {self.title} от {self.updated_at}.'
 
     class Meta:
         """Класс для изменения поведения полей модели "Запись в дневнике"."""
-        verbose_name = 'Запись в дневнике'
-        verbose_name_plural = 'Записи в дневнике'
+        verbose_name = 'Запись об эксперименте'
+        verbose_name_plural = 'Записи об эксперименте'
         ordering = ['owner', 'updated_at', 'title']
 
 
-class Contact(models.Model):
-    """Класс модели "Контакты"."""
-    legal_address = models.TextField(null=True, blank=True, verbose_name='Юридический адрес')
-    mailing_address = models.TextField(null=True, blank=True, verbose_name='Почтовый адрес')
-    email = models.EmailField(unique=True, verbose_name='E-mail')
-    tel = models.CharField(max_length=50, verbose_name='Телефон')
+class FinalReport(models.Model):
+    """Класс модели "Финальный отчет для руководства"."""
+    experiment_note = models.ForeignKey(ExperimentNote,
+                                        on_delete=models.CASCADE,
+                                        verbose_name="принадлежность записи эксперименту",
+                                        related_name="final_reports")
+    at = models.DateTimeField(default=timezone.now, verbose_name= "Время, когда реально произошло измерение")
+    operator = models.ForeignKey("auth.Employee", on_delete=models.PROTECT)
+    payload = models.JSONField()
+    version_of_protocol = models.IntegerField()
+    is_draft = models.BooleanField(default=True)
 
     def __str__(self):
-        """Метод для описания человеко читаемого вида модели "Контакты"."""
-        return (f'\n\nЮридический адрес: {self.legal_address}\nПочтовый адрес: {self.mailing_address}'
-                f'\nE-mail: {self.email}\nТелефон: {self.tel}.')
+        """Метод для описания модели "Финальный отчет для руководства"."""
+        return f'\nЗапись об эксперименте: {self.operator} - {self.experiment_note} от {self.at}.'
 
     class Meta:
-        """Класс для изменения поведения полей модели "Контакты"."""
-        verbose_name = 'Контакты'
-        verbose_name_plural = 'Контакты'
-        ordering = ['mailing_address']
+        """Класс для изменения поведения полей модели "Финальный отчет для руководства"."""
+        verbose_name = 'Финальный отчет'
+        verbose_name_plural = 'Финальные отчеты'
+        ordering = ['operator', 'at']
