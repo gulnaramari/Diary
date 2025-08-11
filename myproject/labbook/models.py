@@ -4,8 +4,8 @@ from users.validators import validate_image_size
 from users.models import User
 
 
-class DiaryEntry(models.Model):
-    """Класс модели "Запись в дневнике"."""
+class LabBook(models.Model):
+    """Класс модели "Запись в рабочем журнале"."""
     title = models.CharField(max_length=150, verbose_name='Заголовок')
     text = models.TextField(null=True, blank=True, verbose_name='Текст')
     picture = (models.ImageField
@@ -16,7 +16,7 @@ class DiaryEntry(models.Model):
                                                    'Разрешенные расширения: %(allowed_extensions)s .',
                                                    'Недопустимое расширение!')]))
     reminder_date = models.DateTimeField(verbose_name='Дата напоминания', blank=True, null=True)
-    create_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
+    created_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateField(auto_now=True, verbose_name='Дата последнего изменения')
     owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Создал',
                               related_name='diary_entry')
