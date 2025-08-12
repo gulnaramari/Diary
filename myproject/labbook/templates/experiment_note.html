@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load entry_tags %}
+{% block title %}Информация о записи{% endblock %}
+
+{% block content %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">{{ object.title }}</h1>
+</div>
+<div class="col-lg-12 col-md-6 col-sm-12">
+    <div class="card">
+        <img src="{{ object.picture | media_filter }}" class="card-img-top w-50 h-50">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">Напомнить: {{object.first_sending}}</li>
+            <li class="list-group-item mt-1 mb-1 ">{{object.text}}</li>
+            {% if user.is_superuser %}
+            <li class="list-group-item">Создал(а): {{object.owner.last_name}} {{object.owner.first_name}}</li>
+            {% endif %}
+        </ul>
+        {% if object.owner == user %}
+        <a href="{% url 'labbook:editing_experiment_note' object.pk %}?next={{ request.GET.next }}" class="btn btn-outline-dark m-2 border-dark-subtle text-center" role="button" style="max-width: 255px;">
+            Редактировать</a>
+        <a href="{% url 'labbook:deleting_experiment_note' object.pk %}?next={{ request.GET.next }}" class="btn btn-outline-dark m-2 border-dark-subtle text-center" role="button" style="max-width: 255px;">
+            Удалить</a>
+        {% endif %}
+    </div>
+</div>
+<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+    <a class="btn btn-warning border-dark-subtle mt-4" href="{{ request.GET.next }}" role="button" style="max-width: 215px;">Назад</a>
+</div>
+{% endblock %}

@@ -11,7 +11,7 @@ class ExperimentNoteForm(forms.ModelForm):
     class Meta:
         """Класс для изменения поведения полей формы модели "Запись об эксперименте в рабочем журнале"."""
         model = ExperimentNote
-        fields = ['title', 'reminder_date', 'text']
+        fields = ['title', 'reminder_date', 'comments']
 
     def clean_reminder_date(self):
         """Метод проверки поля "Дата напоминания о завершении термостатирования" формы модели "Запись в дневнике"."""
@@ -29,7 +29,7 @@ class ExperimentNoteForm(forms.ModelForm):
         self.fields['title'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Введите заголовок записи'})
         self.fields['reminder_date'].widget.attrs.update({'class': 'form-control',
                                                          'aria-label': 'Напомнить о завершении термостатирования'})
-        self.fields['text'].widget.attrs.update({'class': 'form-control', 'id': "exampleFormControlTextarea1",
+        self.fields['comments'].widget.attrs.update({'class': 'form-control', 'id': "exampleFormControlTextarea1",
                                                 'rows': "4", 'placeholder': 'Введите текст записи'})
 
 

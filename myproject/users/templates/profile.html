@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load profile_tags %}
+{% block title %}Информация о пользователе{% endblock %}
+
+{% block content %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Ваш профиль</h1>
+</div>
+<div class="col-lg-12 col-md-6 col-sm-12">
+    <div class="card">
+        <h2 class="card-header p-3 text-center">{{ object.last_name }} {{ object.first_name }}</h2>
+        <img src="{{ object.avatar | media_filter }}" class="card-img-top" alt="..." style="width:800px; height:800px; margin-left: 248px">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">Адрес электронной почты: {{object.email}}</li>
+            <li class="list-group-item">Имя: {{object.first_name}}</li>
+            <li class="list-group-item">Фамилия: {{object.last_name}}</li>
+            <li class="list-group-item">Телефон: {{object.phone}}</li>
+            <li class="list-group-item">Дата добавления: {{object.created_at|date:"d M Y"}}</li>
+            <li class="list-group-item">Дата последнего изменения: {{object.updated_at|date:"d M Y"}}</li>
+        </ul>
+        {% if object == user or user.is_superuser %}
+        <a href="{% url 'users:editing_profile' user.pk %}?next={{ request.get_full_path }}" class="btn btn-outline-dark border-dark-subtle m-2 text-center" role="button" style="max-width: 255px;">
+            Редактировать</a>
+        <a href="{% url 'users:deleting_profile' user.pk %}?next={{ request.get_full_path }}" class="btn btn-outline-dark border-dark-subtle m-2 text-center" role="button" style="max-width: 255px;">
+            Удалить</a>
+        {% endif %}
+    </div>
+</div>
+<div class="row d-grid gap-2 d-md-flex">
+    <a class="btn btn-warning border-dark-subtle mt-4 ms-auto" href="{% url 'labbook:home' %}" role="button" style="max-width: 265px;">Главная</a>
+    <a class="btn btn-warning border-dark-subtle mt-4 me-auto" href="{{ request.GET.next }}" role="button" style="max-width: 265px;">Назад</a>
+</div>
+{% endblock %}

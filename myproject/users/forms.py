@@ -13,13 +13,13 @@ phone_number_validator = RegexValidator(regex=r'^((\+7|7|8)+([0-9]){10})$',
 class EmployeeRegistrationForm(UserCreationForm):
     """Класс формы создания объекта модели "Пользователь"."""
 
-    phone_number = forms.CharField(max_length=12, required=True, validators=[phone_number_validator],
+    phone = forms.CharField(max_length=12, required=True, validators=[phone_number_validator],
                                    label='Номер телефона')
 
     class Meta(UserCreationForm.Meta):
         """Класс для изменения поведения полей формы модели "Сотрудник"."""
         model = Employee
-        fields = ('email', 'avatar', 'first_name', 'last_name', 'phone_number', 'country', 'password1', 'password2')
+        fields = ('email', 'avatar', 'first_name', 'last_name', 'phone', 'password1', 'password2')
 
     def clean_email(self):
         """Метод проверки поля "Адрес электронной почты" формы модели "Сотрудник"."""

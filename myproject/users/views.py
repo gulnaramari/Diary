@@ -11,7 +11,7 @@ from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
-from config.settings import EMAIL_HOST_USER
+
 from .models import Employee
 from config import settings
 from .forms import EmployeeRegistrationForm, UserAuthorizationForm, ProfilePasswordRecoveryForm, \
