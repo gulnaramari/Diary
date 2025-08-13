@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load entry_tags %}
+{% block title %}Мои записи{% endblock %}
+
+{% block content %}
+<div class="container marketing mt-5">
+    <div class="container text-center mt-3">
+        <h1>Мои записи</h1>
+        <div class="row justify-content-center">
+            <div class="col-12 mb-2 d-flex">
+                <form action="{% url 'labbook:search_entries' %}" class="navbar-form navbar-left flex-grow-1" method="get">
+                    <div class="input-group">
+                        <label>
+                        Поиск по записям
+                        <input id="search" name="search_query" type="text" class="form-control" placeholder="Поиск...">
+                        </label>
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-dark border-dark-subtle mt-4 ms-2">Найти</button>
+                        </span>
+                    </div>
+                </form>
+                {% if user.is_authenticated %}
+                    <a class="btn btn-dark border-dark-subtle me-auto mt-4" style="max-height: 40px;" href="{% url 'personal_diary:adding_diary_entry' %}">Добавить запись</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="table-responsive small">
+            <table class="table table-warning bg-gradient bg-opacity-25 table-striped">
+                <thead>
+                <tr>
+                    <th>Заголовок</th>
+                    <th>Текст</th>
+                    <th>Напомнить</th>
+                    <th>картинка</th>
+                    {% if user.is_superuser %}
+                    <th>Создал</th>
+                    {% endif %}
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                {% if diary_entries %}
+                {% for object in diary_entries %}
+                <tr>
+                    <td>{{ object.title }}</td>
+                    <td>{{ object.comments|truncatechars:30 }}</td>
+                    {% if object.reminder_date is not null %}
+                    <td>{{ object.reminder_date|date:"d M Y" }}</td>
+                    {% else %}
+                    <td>Нет</td>
+                    {% endif %}
+                    <td><img src="{{ object.picture | media_filter }}" class="card-img-top w-50 h-50"></td>
+                     {% if user.is_superuser %}
+                    <td>{{ object.owner }}</td>
+                    {% endif %}
+                    <td>
+                        {% if object.owner == user %}
+                        <a class="btn btn-outline-dark border-dark-subtle btn-sm mb-2" href="{% url 'labbook:experiment_note' object.pk%}">Посмотреть </a>
+                        <a class="btn btn-outline-dark border-dark-subtle btn-sm mb-2" href="{% url 'labbook:editing_experiment_note' object.pk%}">Редактировать</a>
+                        <a class="btn btn-outline-dark border-dark-subtle btn-sm mb-2" href="{% url 'labbook:deleting_experiment_note' object.pk%}">Удалить</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor%}
+                {% else %}
+                    <p>Не найдено записи по вашему запросу<br>Попробуйте другой запрос </p>
+                {% endif %}
+            </table>
+        </div><!-- /.row -->
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a class="btn btn-warning border-dark-subtle mt-4" href="{{ request.GET.next }}" role="button" style="max-width: 215px;">Назад</a>
+        </div>
+    </div><!-- /.container -->
+</div>
+{% endblock %}}
