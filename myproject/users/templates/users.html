@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Пользователи {% endblock %}
+
+{% block content %}
+<div class="container marketing mt-5">
+    <div class="container text-center mt-3">
+        <div class="row justify-content-center">
+            <div class="col-4"></div>
+            <div class="col-4">
+                <h2>Пользователи</h2>
+            </div>
+            <div class="col-4"></div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="table-responsive small">
+            <table class="table table-warning bg-gradient bg-opacity-25 table-striped">
+                <thead>
+                <tr>
+                    <th>E-mail</th>
+                    <th>Имя</th>
+                    <th>Фамилия</th>
+                    <th>Активен</th>
+                    {% if user.is_superuser %}
+                    <th>Действия</th>
+                    {% endif %}
+                </tr>
+                </thead>
+
+                {% for object in object_list %}
+                <tr>
+                    <td>{{ object.email }}</td>
+                    <td>{{ object.first_name }}</td>
+                    <td>{{ object.last_name}}</td>
+                    <td class="w-50 h-50">{{ object.avatar }}</td>
+                    <td>{{ object.is_active|yesno:"Да,Нет" }}</td>
+                    {% if user.is_superuser %}
+                    <td>
+                        <a class="btn-outline-dark btn-sm border-dark-subtle"
+                           href="{% url 'users:editing_profile' object.pk%}">Редактировать</a>
+                        <a class="btn btn-outline-dark btn-sm border-dark-subtle"
+                           href="{% url 'users:deleting_profile' object.pk%}">Удалить</a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor%}
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
