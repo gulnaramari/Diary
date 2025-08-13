@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">{% block title %}Редактирование профиля пользователя{% endblock %}</h1>
+</div>
+<div class="col-lg-12 col-md-6 col-sm-12">
+    <div class="card mb-4 box-shadow">
+        <div class="card-header text-center">
+            <h4 class="my-0 font-weight-normal">Редактирование профиля пользователя</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" action="" class="form-floating" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                {% for field in form %}
+                <p>
+                    {{field.label_tag}}
+                    {{field}}
+                    {% endfor %}
+                <button type="submit" class="btn btn-lg btn-block btn-dark border-dark-subtle">Сохранить</button>
+            </form>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a class="btn btn-outline-dark mt-4 border-dark-subtle" href="{% url 'users:profile' user.pk %}?next={{ request.GET.next }}" role="button">Не сохранять изменения</a>
+        </div>
+        </div>
+    </div>
+</div>
+<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+    <a class="btn btn-warning border-dark-subtle mt-4" href="{{ request.GET.next }}" role="button">Назад</a>
+</div>
+{% endblock %}
