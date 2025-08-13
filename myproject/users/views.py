@@ -3,7 +3,11 @@ from django.views.generic import ListView
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib.auth.views import LoginView, PasswordResetConfirmView, PasswordResetView
+from django.contrib.auth.views import (
+    LoginView,
+    PasswordResetConfirmView,
+    PasswordResetView,
+)
 from django.urls import reverse_lazy
 from django.views.generic import DetailView
 from django.views.generic.edit import FormView, UpdateView, DeleteView
@@ -14,16 +18,22 @@ from django.utils.crypto import get_random_string
 
 from .models import Employee
 from config import settings
-from .forms import EmployeeRegistrationForm, UserAuthorizationForm, ProfilePasswordRecoveryForm, \
-    ProfilePasswordResetForm, ProfileChangingPasswordForm, EmployeeUpdateForm
+from .forms import (
+    EmployeeRegistrationForm,
+    UserAuthorizationForm,
+    ProfilePasswordRecoveryForm,
+    ProfilePasswordResetForm,
+    ProfileChangingPasswordForm,
+    EmployeeUpdateForm,
+)
 
 
 class RegistrationView(FormView):
     """Класс представления вида Generic для эндпоинта создания пользователя."""
 
-    template_name = 'registration.html'
+    template_name = "registration.html"
     form_class = EmployeeRegistrationForm
-    success_url = reverse_lazy('users:login')
+    success_url = reverse_lazy("users:login")
 
     def form_valid(self, form):
         """Метод вносит изменение в переданную после проверки на валидацию форму регистрации пользователя."""
@@ -35,11 +45,11 @@ class RegistrationView(FormView):
         print(user.email)
         print("Пользователь зарегистрирован")
         host = self.request.get_host()
-        url_for_confirm = f'http://{host}/profile/email-confirm/{token}'
+        url_for_confirm = f"http://{host}/profile/email-confirm/{token}"
         send_mail(
-            subject=f'Добро пожаловать в наш сервис. Подтвердите вашу электронную почту.',
-            message=f'Здравствуйте, {user.last_name} {user.first_name}! '
-                    f'Для активации вашей учетной записи пройдите по ссылке {url_for_confirm}.',
+            subject=f"Добро пожаловать в наш сервис. Подтвердите вашу электронную почту.",
+            message=f"Здравствуйте, {user.last_name} {user.first_name}! "
+            f"Для активации вашей учетной записи пройдите по ссылке {url_for_confirm}.",
             from_email=settings.EMAIL_HOST_USER,
             recipient_list=[user.email],
         )
@@ -50,17 +60,17 @@ class AuthorizationView(LoginView):
     """Представление для эндпоинта авторизации пользователя."""
 
     form_class = UserAuthorizationForm
-    template_name = 'login.html'
-    success_url = reverse_lazy('personal_diary:home')
+    template_name = "login.html"
+    success_url = reverse_lazy("personal_diary:home")
 
 
-@method_decorator(cache_page(60 * 1), name='dispatch')
+@method_decorator(cache_page(60 * 1), name="dispatch")
 class ProfileView(LoginRequiredMixin, DetailView):
     """Класс представления вида Generic для эндпоинта просмотра профиля пользователя."""
 
     model = Employee
-    template_name = 'profile.html'
-    context_object_name = 'profile'
+    template_name = "profile.html"
+    context_object_name = "profile"
 
     def get_object(self, queryset=None):
         """Метод проверки на доступ к объекту модели "Пользователь"."""
@@ -75,8 +85,8 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
 
     model = Employee
     form_class = EmployeeUpdateForm
-    template_name = 'editing_profile.html'
-    success_url = reverse_lazy('users:profile')
+    template_name = "editing_profile.html"
+    success_url = reverse_lazy("users:profile")
 
     def get_object(self, queryset=None):
         """Метод проверки на доступ к объекту модели "Пользователь"."""
@@ -90,8 +100,8 @@ class ProfileDeletingView(DeleteView):
     """Класс представления вида Generic для эндпоинта удаления профиля пользователя."""
 
     model = Employee
-    template_name = 'deleting_profile.html'
-    success_url = reverse_lazy('users:profiles')
+    template_name = "deleting_profile.html"
+    success_url = reverse_lazy("users:profiles")
 
     def get_object(self, queryset=None):
         """Метод проверки на доступ к объекту модели "Пользователь"."""
@@ -101,12 +111,12 @@ class ProfileDeletingView(DeleteView):
         return self.object
 
 
-@method_decorator(cache_page(60 * 1), name='dispatch')
+@method_decorator(cache_page(60 * 1), name="dispatch")
 class ProfilesListView(LoginRequiredMixin, ListView):
     """Класс представления вида Generic для эндпоинта списка пользователей."""
 
     model = Employee
-    template_name = 'users.html'
+    template_name = "users.html"
 
     def test_func(self):
         """Метод для тестирования."""
@@ -170,4 +180,3 @@ class ProfileChangingPasswordView(SuccessMessageMixin, PasswordResetConfirmView)
         context = super().get_context_data(**kwargs)
         context["title"] = "Установить новый пароль"
         return context
-

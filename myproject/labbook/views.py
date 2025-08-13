@@ -14,8 +14,8 @@ class ExperimentNoteListView(LoginRequiredMixin, ListView):
 
     paginate_by = 10
     model = ExperimentNote
-    template_name = 'experiment_note.html'
-    context_object_name = 'experiment_notes'
+    template_name = "experiment_note.html"
+    context_object_name = "experiment_notes"
 
     def get_queryset(self):
         """Метод для изменения запроса к базе данных по объектам модели "Запись об эксперименте в рабочем журнале"."""
@@ -27,8 +27,8 @@ class ExperimentNoteCreateView(LoginRequiredMixin, CreateView):
 
     model = ExperimentNote
     form_class = ExperimentNoteForm
-    template_name = 'adding_experiment_note.html'
-    success_url = reverse_lazy('labbook:experiment_notes')
+    template_name = "adding_experiment_note.html"
+    success_url = reverse_lazy("labbook:experiment_notes")
 
     def form_valid(self, form):
         """Метод вносит изменение в переданную после проверки на валидацию форму создания "Запись в рабочем журнале"."""
@@ -42,7 +42,7 @@ class ExperimentNoteDetailView(LoginRequiredMixin, DetailView):
     """Класс Generic для эндпоинта просмотра записей в рабочем журнале."""
 
     model = ExperimentNote
-    template_name = 'experiment_note.html'
+    template_name = "experiment_note.html"
 
     def get_object(self, queryset=None):
         """Метод проверки на доступ к объекту "Запись в рабочем журнале"."""
@@ -57,7 +57,7 @@ class ExperimentNoteUpdateView(LoginRequiredMixin, UpdateView):
 
     model = ExperimentNote
     form_class = ExperimentNoteForm
-    template_name = 'editing_experiment_note.html'
+    template_name = "editing_experiment_note.html"
 
     def get_object(self, queryset=None):
         """Метод проверки на доступ к объекту "Запись в рабочем журнале"."""
@@ -68,15 +68,15 @@ class ExperimentNoteUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self, **kwargs):
         """Метод переадресации пользователя после выполнения данного представления."""
-        return reverse('labbook:experiment_note', args=[self.kwargs.get('pk')])
+        return reverse("labbook:experiment_note", args=[self.kwargs.get("pk")])
 
 
 class ExperimentNoteDeleteView(LoginRequiredMixin, DeleteView):
     """Класс представления вида Generic для эндпоинта удаления записи в в рабочем журнале."""
 
     model = ExperimentNote
-    template_name = 'experiment_note_confirm_delete.html'
-    success_url = reverse_lazy('labbook:experiment_notes')
+    template_name = "experiment_note_confirm_delete.html"
+    success_url = reverse_lazy("labbook:experiment_notes")
 
     def get_object(self, queryset=None):
         """Метод проверки на доступ к объекту "Запись в рабочем журнале"."""
@@ -97,7 +97,9 @@ class HomePageView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         """Метод для изменения информации выводимой в представлении."""
         context_data = super().get_context_data(**kwargs)
-        context_data["count_entries"] = len(ExperimentNote.objects.filter(updated_at=datetime.date.today()))
+        context_data["count_entries"] = len(
+            ExperimentNote.objects.filter(updated_at=datetime.date.today())
+        )
         return context_data
 
     def get_queryset(self):

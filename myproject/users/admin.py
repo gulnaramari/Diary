@@ -4,8 +4,6 @@ from .models import Employee
 
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'email', 'phone')
-    list_filter = ('email', 'phone')
-    search_fields = ('email', 'phone')
-
-
+    list_display = ("id", "email", "phone")
+    list_filter = ("email", "phone")
+    search_fields = ("email", "phone")
