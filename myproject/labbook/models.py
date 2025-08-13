@@ -33,14 +33,14 @@ class ExperimentNote(models.Model):
         default=timezone.now, verbose_name="Завершение активации латекса"
     )
     is_latex_loss = models.BooleanField(
-        default=False, verbose_name="Оценка потери латекса во время ресуспендирования"
+        default=False, verbose_name="Потери латекса во время ресуспендирования"
     )
     optical_density = models.DecimalField(
         max_digits=3,
         decimal_places=2,
         default=0.00,
         validators=[MinValueValidator(0.00), MaxValueValidator(10.00)],
-        verbose_name="Оптическая плотность",
+        verbose_name="Оптическая плотность реагента",
     )
     signal_level = models.DecimalField(
         max_digits=3,
@@ -48,6 +48,13 @@ class ExperimentNote(models.Model):
         default=0.00,
         validators=[MinValueValidator(0.00), MaxValueValidator(1.00)],
         verbose_name="Уровень сигнала в реакции",
+    )
+    storage_buffer_ph = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        default=0.00,
+        validators=[MinValueValidator(0.00), MaxValueValidator(10.00)],
+        verbose_name="Значение рН буфера для хранения готового реагента",
     )
     picture = models.ImageField(
         upload_to="labbook/images",
@@ -64,6 +71,7 @@ class ExperimentNote(models.Model):
             ),
         ],
     )
+    reminder_date = models.DateTimeField(verbose_name='Дата напоминания', blank=True, null=True)
     owner = models.ForeignKey(
         Employee,
         on_delete=models.PROTECT,

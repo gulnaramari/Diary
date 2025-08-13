@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import FileExtensionValidator
 from django.contrib.auth.models import BaseUserManager
-from users.validators import image_validate
+from .validators import image_validate
 
 
 class EmployeeManager(BaseUserManager):
@@ -60,9 +60,9 @@ class Employee(AbstractUser):
     updated_at = models.DateField(
         auto_now=True, verbose_name="Дата последнего изменения"
     )
-    token = models.CharField(
-        max_length=150, blank=True, null=True, verbose_name="Токен для верификации"
-    )
+
+    token = models.CharField(max_length=128, blank=True, null=True, db_index=True)
+    is_active = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -70,7 +70,7 @@ class Employee(AbstractUser):
     objects = EmployeeManager()
 
     def __str__(self):
-        """Метод для описания человеко читаемого вида модели "Сотрудник"."""
+        """Метод для модели "Сотрудник"."""
         return f"{self.email}"
 
     class Meta:

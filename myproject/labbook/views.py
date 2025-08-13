@@ -87,7 +87,7 @@ class ExperimentNoteDeleteView(LoginRequiredMixin, DeleteView):
 
 
 class HomePageView(LoginRequiredMixin, ListView):
-    """Класс представления вида Generic для эндпоинта главной страницы."""
+    """Класс Generic для эндпоинта главной страницы."""
 
     paginate_by = 14
     model = ExperimentNote

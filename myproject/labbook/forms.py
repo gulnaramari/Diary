@@ -9,7 +9,7 @@ class ExperimentNoteForm(forms.ModelForm):
     reminder_date = forms.DateTimeField(
         widget=forms.DateTimeInput(attrs={"type": "datetime-local"}),
         required=False,
-        label="Напомнить о завершении термостатирования",
+        label="Напомнить о необходимости замеров оптической плотности и рН реагента",
     )
 
     class Meta:

@@ -31,7 +31,10 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if os.getenv("DEBUG") == "True" else False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "192.168.0.107"]
+
+SITE_ID = 1
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
 
 AUTH_USER_MODEL = "users.Employee"
 
@@ -47,16 +50,20 @@ INSTALLED_APPS = [
     "rest_framework",
     "users",
     "labbook",
+    "corsheaders",
+
+
 ]
 
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
+     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
