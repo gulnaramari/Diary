@@ -9,10 +9,10 @@
     <div class="col-6">
        <ul class="list-group px-3 py-3 pt-md-5 pb-md-4 mx-auto ml-auto">
             <li class="list-group-item d-flex justify-content-between align-items-center">
-                {% if user.is_authenticated %}
-                <a href="{% url 'labbook:home' %}">Эксперименты на сегодня: </a>
+                {% if user.is_superuser %}
+                <a  href="{% url 'labbook:experiment_notes' %}">Подготовлено отчетов: </a>
                 {% else %}
-                <p>Эксперименты на сегодня: </p>
+                 <a  href="{% url 'labbook:experiment_notes' %}">Подготовлено отчетов: </a>
                 {% endif %}
                 <span class="badge bg-dark rounded-pill">{{ count_entries }}</span>
             </li>
@@ -32,7 +32,7 @@
                 <th>Заголовок</th>
                 <th>Текст</th>
                 <th>Напомнить</th>
-                <th>Протоколы</th>
+                <th>Протокол</th>
                 <th>Действия</th>
             </tr>
             </thead>

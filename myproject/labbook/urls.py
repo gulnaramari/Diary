@@ -6,13 +6,14 @@ from .views import (
     HomePageView,
     ExperimentNoteDetailView,
     ExperimentNoteUpdateView,
-    ExperimentNoteDeleteView,
+    ExperimentNoteDeleteView, choice_date, SearchEntries,
 )
 
 app_name = LabbookConfig.name
 
 urlpatterns = [
     path("", HomePageView.as_view(), name="home"),
+
     path(
         "experiment-notes/", ExperimentNoteListView.as_view(), name="experiment_notes"
     ),
@@ -36,4 +37,8 @@ urlpatterns = [
         ExperimentNoteDeleteView.as_view(),
         name="deleting_experiment_note",
     ),
+    path('choice-date/', choice_date, name='choice_date'),
+    path('search-entries/', SearchEntries.as_view(), name='search_entries'),
+
+
 ]
