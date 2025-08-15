@@ -1,11 +1,11 @@
 from django.core.cache import cache
-from config.settings import CACHE_ENABLED
+from django.conf import settings
 from .models import ExperimentNote
 
 
 def get_from_cache():
     """Получение данных по записям из кэша, если кэш пуст берем из БД."""
-    if not CACHE_ENABLED:
+    if not settings.CACHES:
         return ExperimentNote.objects.all()
     key = "mailing_list"
     cache_data = cache.get(key)

@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container marketing mt-5">
     <div class="container text-center mt-3">
-        <h1>Мои записи</h1>
+        <h3>Мои записи</h3>
         <div class="row justify-content-center">
             <div class="col-12 mb-2 d-flex">
                 <form action="{% url 'labbook:search_entries' %}" class="navbar-form navbar-left flex-grow-1" method="get">
@@ -30,10 +30,19 @@
             <table class="table table-warning bg-gradient bg-opacity-25 table-striped">
                 <thead>
                 <tr>
-                    <th>Заголовок</th>
-                    <th>Текст</th>
-                    <th>Напомнить</th>
-                    <th>Протокол</th>
+                    <th>Код проекта</th>
+                    <th>Название для отчёта</th>
+                    <th>Особенности эксперимента</th>
+                    <th>Версия протокола</th>
+                    <th>Начало активации латекса</th>
+                    <th>Завершение активации латекса</th>
+                    <th>Потери латекса во время ресуспендирования</th>
+                    <th>Оптическая плотность реагента</th>
+                    <th>Уровень сигнала в реакции</th>
+                    <th>Значение рН буфера для хранения готового реагента</th>
+                    <th>Дата напоминания о завершении термостатирования</th>
+                    <th>Дата создания отчета</th>
+                    <th>Дата завершения отчета</th>
                     {% if user.is_superuser %}
                     <th>Создал</th>
                     {% endif %}

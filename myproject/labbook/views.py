@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils import timezone
 from django.views.generic import ListView, DetailView, View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from .forms import DateForm, ExperimentNoteForm
@@ -16,7 +17,7 @@ class ExperimentNoteListView(LoginRequiredMixin, ListView):
 
     paginate_by = 10
     model = ExperimentNote
-    template_name = "experiment_note.html"
+    template_name = "experiment_notes.html"
     context_object_name = "experiment_notes"
 
     def get_queryset(self):
@@ -30,14 +31,27 @@ class ExperimentNoteCreateView(LoginRequiredMixin, CreateView):
     model = ExperimentNote
     form_class = ExperimentNoteForm
     template_name = "adding_experiment_note.html"
-    success_url = reverse_lazy("labbook:experiment_notes")
+    success_url = reverse_lazy("labbook:home")
 
     def form_valid(self, form):
-        """Метод вносит изменение в переданную после проверки на валидацию форму создания "Запись в рабочем журнале"."""
-        experiment_note = form.save()
-        experiment_note.owner = self.request.user
-        experiment_note.save()
+        # ✅ ставим владельца до сохранения
+        user = self.request.user
+
+        # Если ваш пользовательская модель = Employee (AUTH_USER_MODEL=Employee), то так:
+        form.instance.owner = user
+
+        # Если же owner=Employee, а аутентификация идёт через User и есть связь OneToOne:
+        # form.instance.owner = getattr(user, "employee", None)
+        # if form.instance.owner is None:
+        #     form.add_error(None, "Текущий пользователь не привязан к Employee — сохранить нельзя.")
+        #     return self.form_invalid(form)
+
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["created_today"] = timezone.localdate()
+        return ctx
 
 
 class ExperimentNoteDetailView(LoginRequiredMixin, DetailView):

@@ -21,7 +21,7 @@
                 <button type="submit" class="btn btn-lg btn-block btn-dark border-dark-subtle">Сохранить</button>
             </form>
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-            <a class="btn btn-outline-dark mt-4 border-dark-subtle" href="{% url 'users:profile' user.pk %}?next={{ request.GET.next }}" role="button">Не сохранять изменения</a>
+            <a class="btn btn-outline-dark mt-4 border-dark-subtle" href="{% url 'users:profile' employee.pk %}?next={{ request.GET.next }}" role="button">Не сохранять изменения</a>
         </div>
         </div>
     </div>

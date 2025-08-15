@@ -10,52 +10,15 @@
        <ul class="list-group px-3 py-3 pt-md-5 pb-md-4 mx-auto ml-auto">
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 {% if user.is_superuser %}
-                <a  href="{% url 'labbook:experiment_notes' %}">Подготовлено отчетов: </a>
-                {% else %}
-                 <a  href="{% url 'labbook:experiment_notes' %}">Подготовлено отчетов: </a>
+                <a href="{% url 'labbook:experiment_notes' %}">Архив записей: </a>
+                {% elif user.is_authenticated %}
+                <a href="{% url 'labbook:experiment_notes' %}">Мои записи: </a>
                 {% endif %}
                 <span class="badge bg-dark rounded-pill">{{ count_entries }}</span>
             </li>
        </ul>
     </div>
-    <div class="col-6">
-        <div class="d-grid gap-2 d-md-flex mt-4 pt-2 justify-content-md-end">
-            <a class="btn btn-dark mt-4" href="{% url 'labbook:adding_experiment_note' %}?next={{ request.get_full_path }}" role="button">Добавить запись</a>
-        </div>
-    </div>
+
 </div>
-<div class="row">
-    <div class="table-responsive small">
-        <table class="table table-warning bg-gradient bg-opacity-25 table-striped">
-            <thead>
-            <tr>
-                <th>Заголовок</th>
-                <th>Текст</th>
-                <th>Напомнить</th>
-                <th>Протокол</th>
-                <th>Действия</th>
-            </tr>
-            </thead>
-            {% for object in experiment_notes %}
-            <tr>
-                <td>{{ object.title }}</td>
-                <td>{{ object.comments|truncatechars:30 }}</td>
-                {% if object.reminder_date is not null %}
-                <td>{{ object.reminder_date|date:"d M Y" }}</td>
-                {% else %}
-                <td>Нет</td>
-                {% endif %}
-                <td><img src="{{ object.picture | media_filter }}" class="card-img-top w-50 h-50"></td>
-                <td>
-                    {% if object.owner == user %}
-                    <a class="btn btn-outline-dark btn-sm mb-2" href="{% url 'labbook:experiment_note' object.pk%}">Посмотреть </a>
-                    <a class="btn btn-outline-dark btn-sm mb-2" href="{% url 'labbook:editing_experiment_note' object.pk%}">Редактировать</a>
-                    <a class="btn btn-outline-dark btn-sm mb-2" href="{% url 'labbook:deleting_experiment_note' object.pk%}">Удалить</a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor%}
-        </table>
-    </div>
-</div>
+
 {% endblock %}
