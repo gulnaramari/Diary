@@ -34,24 +34,15 @@ class ExperimentNoteCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy("labbook:home")
 
     def form_valid(self, form):
-        # ✅ ставим владельца до сохранения
+        # ставим владельца до сохранения
         user = self.request.user
-
-        # Если ваш пользовательская модель = Employee (AUTH_USER_MODEL=Employee), то так:
         form.instance.owner = user
-
-        # Если же owner=Employee, а аутентификация идёт через User и есть связь OneToOne:
-        # form.instance.owner = getattr(user, "employee", None)
-        # if form.instance.owner is None:
-        #     form.add_error(None, "Текущий пользователь не привязан к Employee — сохранить нельзя.")
-        #     return self.form_invalid(form)
-
         return super().form_valid(form)
 
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx["created_today"] = timezone.localdate()
-        return ctx
+    # def get_context_data(self, **kwargs):
+    #     ctx = super().get_context_data(**kwargs)
+    #     ctx["created_today"] = timezone.localdate()
+    #     return ctx
 
 
 class ExperimentNoteDetailView(LoginRequiredMixin, DetailView):

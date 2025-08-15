@@ -5,25 +5,7 @@ from .models import ExperimentNote
 class ExperimentNoteForm(forms.ModelForm):
     class Meta:
         model = ExperimentNote
-        fields = [
-            "code_of_project",
-            "title",
-            "comments",
-            "version_of_protocol",
-            "latex_started_at",
-            "latex_completed_at",
-            "is_latex_loss",
-            "optical_density",
-            "signal_level",
-            "storage_buffer_ph",
-            "reminder_date",
-
-            "status",
-            "picture",           # оставить, если нужно загружать
-            # "owner"  ← не включаем, ставим во view
-            # "created_at" ← non-editable, не включаем
-            # "updated_at" ← non-editable, не включаем
-        ]
+        exclude = ["owner", "created_at", "updated_at"]
         widgets = {
             "comments": forms.Textarea(attrs={"rows": 3}),
             "latex_started_at": forms.DateTimeInput(attrs={"type": "datetime-local"}),
