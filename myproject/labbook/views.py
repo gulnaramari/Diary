@@ -6,12 +6,15 @@ from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, DetailView, View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from .forms import DateForm, ExperimentNoteForm
 from .models import ExperimentNote
 
 
+@method_decorator(cache_page(60 * 1), name='dispatch')
 class ExperimentNoteListView(LoginRequiredMixin, ListView):
     """Класс-Generic для эндпоинта списка записей об экспериментах в рабочем журнале."""
 
@@ -34,7 +37,7 @@ class ExperimentNoteCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy("labbook:experiment_notes")
 
     def form_valid(self, form):
-        # ставим владельца до сохранения
+        """Метод вносит изменение в переданную после проверки на валидацию форму создания "Запись в дневнике"."""
         user = self.request.user
         form.instance.owner = user
         return super().form_valid(form)
@@ -45,6 +48,7 @@ class ExperimentNoteCreateView(LoginRequiredMixin, CreateView):
         return ctx
 
 
+@method_decorator(cache_page(60 * 1), name='dispatch')
 class ExperimentNoteDetailView(LoginRequiredMixin, DetailView):
     """Класс Generic для эндпоинта просмотра записей в рабочем журнале."""
 

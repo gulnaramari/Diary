@@ -3,6 +3,7 @@ from .models import ExperimentNote
 
 
 class ExperimentNoteForm(forms.ModelForm):
+    """Класс формы модели "Запись в рабочем журнале"."""
     class Meta:
         model = ExperimentNote
         exclude = ["owner", "created_at", "updated_at"]

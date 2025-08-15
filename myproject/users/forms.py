@@ -17,7 +17,7 @@ phone_validator = RegexValidator(
 
 
 class EmployeeRegistrationForm(UserCreationForm):
-    """Класс формы создания объекта модели "Пользователь"."""
+    """Класс формы создания объекта модели "Сотрудник"."""
 
     phone = forms.CharField(
         max_length=12,
@@ -135,10 +135,10 @@ class EmployeeUpdateForm(UserCreationForm):
 
 
 class UserAuthorizationForm(AuthenticationForm):
-    """Класс формы авторизации пользователя."""
+    """Класс формы авторизации сотрудника."""
 
     class Meta(AuthenticationForm):
-        """Класс для изменения поведения полей формы модели "Пользователь"."""
+        """Класс для изменения поведения полей формы модели "Сотрудник"."""
 
         fields = ("email", "password")
 
@@ -178,7 +178,7 @@ class ProfileChangingPasswordForm(SetPasswordForm):
 
 
 class ProfilePasswordRecoveryForm(forms.Form):
-    """Форма восстановления пароля пользователя."""
+    """Форма восстановления пароля сотрудника."""
 
     email = forms.EmailField(label="Укажите электронный адрес")
 

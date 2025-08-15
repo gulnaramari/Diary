@@ -103,6 +103,7 @@ class ExperimentNote(models.Model):
     )
 
     def clean(self):
+        """Метод валидации данных"""
         errors = {}
 
         # завершение активации не раньше начала

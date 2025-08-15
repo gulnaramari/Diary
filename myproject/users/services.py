@@ -7,7 +7,7 @@ from django.conf import settings
 
 
 def generate_activation_token() -> str:
-    return secrets.token_hex(32)  # 64-символьный hex
+    return secrets.token_hex(32)
 
 
 def activate_user_by_token(raw_token: str):
