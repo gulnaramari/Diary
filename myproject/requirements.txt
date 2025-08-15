@@ -1,7 +1,14 @@
 black==25.1.0
+coverage==7.10.3
 Django==5.2.4
+django-cors-headers==4.7.0
 djangorestframework==3.16.0
 dotenv==0.9.9
+drf-yasg==1.21.10
 pillow==11.3.0
 psycopg2-binary==2.9.10
 python-dotenv==1.1.1
+redis==6.4.0
+requests==2.32.4
+urllib3==2.5.0
+

@@ -1,17 +1,9 @@
-<div class="d-flex align-items-center p-3 px-md-4 mb-3 bg-warning text-white border-bottom box-shadow">
+<div class="d-flex align-items-center p-3 px-md-4 mb-3 bg-semilight text-white border-bottom box-shadow">
     <nav class="p-2 flex-grow-1 ms-3">
         <a class="btn btn-dark p-2 border-dark-subtle" href="{% url 'labbook:home' %}">Главная</a>
         <a class="btn btn-dark p-2 border-dark-subtle" href="{% url 'labbook:experiment_notes' %}">Мои записи</a>
         <a class="btn btn-dark p-2 border-dark-subtle" href="{% url 'labbook:experiment_notes' %}">Поиск по записям</a>
-        <div class="btn-group border-dark-subtle">
-            <button class="btn btn-dark dropdown-toggle-split dropdown-toggle p-2 border-dark-subtle" data-bs-toggle="dropdown" aria-expanded="false">
-            О приложении
-            </button>
-            <ul class="dropdown-menu dropdown-menu-dark bg-dark">
-                <li><a class="dropdown-item text-white link-dark" href="{% url 'labbook:experiment_notes' %}">Контакты</a></li>
-                <li><a class="dropdown-item text-white link-dark" href="{% url 'labbook:experiment_notes' %}">Обратная связь</a></li>
-            </ul>
-        </div>
+
     </nav>
 {% if user.is_authenticated %}
 <div>

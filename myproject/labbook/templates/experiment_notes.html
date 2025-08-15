@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container marketing mt-5">
     <div class="container text-center mt-3">
-        <h1>Мои записи</h1>
+        <h1></h1>
         <div class="row justify-content-center">
             <div class="col-12 mb-2 d-flex">
                 <form action="{% url 'labbook:search_entries' %}" class="navbar-form navbar-left flex-grow-1" method="get">
@@ -20,7 +20,7 @@
                     </div>
                 </form>
                 {% if user.is_authenticated %}
-                    <a class="btn btn-dark border-dark-subtle me-auto mt-4" style="max-height: 40px;" href="{% url 'personal_diary:adding_diary_entry' %}">Добавить запись</a>
+                    <a class="btn btn-dark border-dark-subtle me-auto mt-4" style="max-height: 40px;" href="{% url 'labbook:adding_experiment_note' %}">Добавить запись</a>
                 {% endif %}
             </div>
         </div>
@@ -30,21 +30,42 @@
             <table class="table table-warning bg-gradient bg-opacity-25 table-striped">
                 <thead>
                 <tr>
-                    <th>Заголовок</th>
-                    <th>Текст</th>
-                    <th>Напомнить</th>
-                    <th>Протоколы</th>
+                    <th>Код проекта</th>
+                    <th>Название для отчёта</th>
+                    <th>Особенности эксперимента</th>
+                    <th>Статус</th>
+                    <th>Версия протокола</th>
+                    <th>Начало активации латекса</th>
+                    <th>Завершение активации латекса</th>
+                    <th>Потери латекса во время ресуспендирования</th>
+                    <th>Оптическая плотность реагента</th>
+                    <th>Уровень сигнала в реакции</th>
+                    <th>Значение рН буфера для хранения готового реагента</th>
+
+                    <th>Дата напоминания о необходимости термостатирования</th>
+                    <th>Изображение</th>
                     {% if user.is_superuser %}
-                    <th>Создал</th>
+                    <th>Создал(а)</th>
                     {% endif %}
                     <th>Действия</th>
                 </tr>
                 </thead>
-                {% if diary_entries %}
-                {% for object in diary_entries %}
+                {% if experiment_notes %}
+                {% for object in experiment_notes %}
                 <tr>
+                    <td>{{ object.code_of_project }}</td>
                     <td>{{ object.title }}</td>
                     <td>{{ object.comments|truncatechars:30 }}</td>
+                    <td>{{ object.status }}</td>
+                    <td>{{ object.version_of_protocol }}</td>
+                    <td>{{ object.latex_started_at }}</td>
+                    <td>{{ object.latex_completed_at }}</td>
+                    <td>{{ object.is_latex_loss }}</td>
+                    <td>{{ object.optical_density }}</td>
+                    <td>{{ object.signal_level }}</td>
+                    <td>{{ object.storage_buffer_ph }}</td>
+
+
                     {% if object.reminder_date is not null %}
                     <td>{{ object.reminder_date|date:"d M Y" }}</td>
                     {% else %}
@@ -64,7 +85,7 @@
                 </tr>
                 {% endfor%}
                 {% else %}
-                    <p>Не найдено записи по вашему запросу<br>Попробуйте другой запрос </p>
+                    <p>Не найдено записи по вашему запросу<br>Попробуйте повторить запрос с другой формулировкой</p>
                 {% endif %}
             </table>
         </div><!-- /.row -->

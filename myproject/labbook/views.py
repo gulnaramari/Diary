@@ -1,20 +1,26 @@
 import datetime
-
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db.models import Q
+from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, DetailView, View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from .forms import DateForm, ExperimentNoteForm
 from .models import ExperimentNote
 
 
+@method_decorator(cache_page(60 * 1), name='dispatch')
 class ExperimentNoteListView(LoginRequiredMixin, ListView):
     """Класс-Generic для эндпоинта списка записей об экспериментах в рабочем журнале."""
 
     paginate_by = 10
     model = ExperimentNote
-    template_name = "experiment_note.html"
+    template_name = "experiment_notes.html"
     context_object_name = "experiment_notes"
 
     def get_queryset(self):
@@ -31,13 +37,18 @@ class ExperimentNoteCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy("labbook:experiment_notes")
 
     def form_valid(self, form):
-        """Метод вносит изменение в переданную после проверки на валидацию форму создания "Запись в рабочем журнале"."""
-        experiment_note = form.save()
-        experiment_note.owner = self.request.user
-        experiment_note.save()
+        """Метод вносит изменение в переданную после проверки на валидацию форму создания "Запись в дневнике"."""
+        user = self.request.user
+        form.instance.owner = user
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["created_today"] = timezone.localdate()
+        return ctx
 
+
+@method_decorator(cache_page(60 * 1), name='dispatch')
 class ExperimentNoteDetailView(LoginRequiredMixin, DetailView):
     """Класс Generic для эндпоинта просмотра записей в рабочем журнале."""
 
@@ -105,3 +116,73 @@ class HomePageView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         """Метод для изменения запроса к базе данных по объектам модели "Запись в рабочем журнале"."""
         return ExperimentNote.objects.filter(owner=self.request.user)
+
+
+def choice_date(self, request):
+    """Метод запроса POST для вывода отфильтрованной информации по записям по выбранной дате."""
+
+    if request.method == 'POST':
+        form = DateForm(request.POST or None)
+        if form.is_valid():
+            selected_date = form.cleaned_data.get('datepicker')
+            return redirect('labbook:home', kwargs=selected_date)
+    else:
+        form = DateForm()
+    return render(request, 'home.html', {'form': form})
+
+
+class SearchEntries(LoginRequiredMixin, View):
+    """Класс представления вида View для эндпоинта поиска по записям сотрудника."""
+
+    paginate_by = 10
+    model = ExperimentNote
+    template_name = 'experiment_notes.html'
+    context_object_name = 'experiment_notes'
+
+    def get(self, request, *args, **kwargs):
+        """Метод запроса GET для вывода отфильтрованной ключевому слову запроса информации по записям."""
+        context = {}
+        search_query = request.GET.get('search_query')
+        user_entries = ExperimentNote.objects.filter(owner=self.request.user)
+        if search_query is not None:
+            experiment_notes = user_entries.filter(
+                Q(title__icontains=search_query) | Q(code_of_project__icontains=search_query)).\
+                order_by('updated_at')
+
+            context['last_search_query'] = '?search_query=%s' % search_query
+            current_page = Paginator(experiment_notes, 10)
+
+            page = request.GET.get('page')
+            try:
+                context['experiment_notes'] = current_page.page(page)
+            except PageNotAnInteger:
+                context['experiment_notes'] = current_page.page(1)
+            except EmptyPage:
+                context['experiment_notes'] = current_page.page(current_page.num_pages)
+            return render(request, template_name=self.template_name, context=context)
+        elif search_query == '':
+            context['last_search_query'] = '?search_query=%s' % search_query
+            current_page = Paginator(user_entries, 10)
+
+            page = request.GET.get('page')
+            try:
+                context['experiment_notes'] = current_page.page(page)
+            except PageNotAnInteger:
+                context['experiment_notes'] = current_page.page(1)
+            except EmptyPage:
+                context['experiment_notes'] = current_page.page(current_page.num_pages)
+
+            return render(request, template_name=self.template_name, context=context)
+        else:
+            context['last_search_query'] = '?search_query=%s' % search_query
+            current_page = Paginator(user_entries, 10)
+
+            page = request.GET.get('page')
+            try:
+                context['experiment_notes'] = current_page.page(page)
+            except PageNotAnInteger:
+                context['experiment_notes'] = current_page.page(1)
+            except EmptyPage:
+                context['experiment_notes'] = current_page.page(current_page.num_pages)
+
+            return render(request, template_name=self.template_name, context=context)

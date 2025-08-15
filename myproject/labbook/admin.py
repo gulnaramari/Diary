@@ -6,16 +6,19 @@ from .models import ExperimentNote
 class ExperimentNoteAdmin(admin.ModelAdmin):
     list_display = (
         "id",
+        "code_of_project",
         "title",
         "updated_at",
         "owner__email",
     )
     list_filter = (
+        "code_of_project",
         "title",
         "updated_at",
         "owner__email",
     )
     search_fields = (
+        "code_of_project",
         "title",
         "updated_at",
         "owner__email",

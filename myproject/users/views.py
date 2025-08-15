@@ -66,7 +66,6 @@ class AuthorizationView(LoginView):
     success_url = reverse_lazy("labbook:home")
 
 
-
 class ProfileView(LoginRequiredMixin, DetailView):
     """Класс-Generic для эндпоинта просмотра профиля сотрудника."""
 
@@ -111,7 +110,6 @@ class ProfileDeletingView(DeleteView):
         if self.object != self.request.user and not self.request.user.is_superuser:
             raise PermissionDenied
         return self.object
-
 
 
 class ProfilesListView(LoginRequiredMixin, ListView):

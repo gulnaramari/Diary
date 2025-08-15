@@ -21,9 +21,9 @@
                     <th>E-mail</th>
                     <th>Имя</th>
                     <th>Фамилия</th>
-                    <th>Активен</th>
-                    {% if user.is_superuser %}
                     <th>Действия</th>
+                    {% if user.is_superuser %}
+                    <th>Активен</th>
                     {% endif %}
                 </tr>
                 </thead>

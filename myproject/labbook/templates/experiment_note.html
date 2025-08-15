@@ -4,14 +4,20 @@
 
 {% block content %}
 <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-    <h1 class="display-4">{{ object.title }}</h1>
+    <h1 class="display-5">{{ object.title }}</h1>
 </div>
 <div class="col-lg-12 col-md-6 col-sm-12">
     <div class="card">
         <img src="{{ object.picture | media_filter }}" class="card-img-top w-50 h-50">
         <ul class="list-group list-group-flush">
-            <li class="list-group-item">Напомнить: {{object.first_sending}}</li>
-            <li class="list-group-item mt-1 mb-1 ">{{object.text}}</li>
+            <li class="list-group-item mt-1 mb-1 ">Код проекта:{{object.code_of_project}}</li>
+            <li class="list-group-item mt-1 mb-1 ">Название для отчёта:{{object.title}}</li>
+            <li class="list-group-item mt-1 mb-1 ">Текст отчёта:{{object.comments}}</li>
+            <li class="list-group-item mt-1 mb-1 ">Статус отчета:{{object.status}}</li>
+            <li class="list-group-item mt-1 mb-1 ">Версия протокола: {{object.version_of_protocol}}</li>
+            <li class="list-group-item mt-1 mb-1 ">Начало активации латекса:{{object.latex_started_at}}</li>
+            <li class="list-group-item mt-1 mb-1 ">Конец активации латекса:{{object.latex_completed_at}}</li>
+
             {% if user.is_superuser %}
             <li class="list-group-item">Создал(а): {{object.owner.last_name}} {{object.owner.first_name}}</li>
             {% endif %}
@@ -25,6 +31,6 @@
     </div>
 </div>
 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-    <a class="btn btn-warning border-dark-subtle mt-4" href="{{ request.GET.next }}" role="button" style="max-width: 215px;">Назад</a>
+    <a class="btn btn-white border-dark-subtle mt-4" href="{{ request.GET.next }}" role="button" style="max-width: 215px;">Назад</a>
 </div>
 {% endblock %}

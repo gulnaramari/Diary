@@ -2,12 +2,12 @@
 
 {% block content %}
 <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-    <h1 class="display-4">{% block title %}Редактирование записи{% endblock %}</h1>
+    <h1 class="display-5">{% block title %}Редактирование записи{% endblock %}</h1>
 </div>
 <div class="col-lg-12 col-md-6 col-sm-12">
     <div class="card mb-4 box-shadow">
         <div class="card-header text-center">
-            <h4 class="my-0 font-weight-normal">Редактирование записи {{ object.title }}</h4>
+            <h4 class="my-0 font-weight-normal">{{ object.title }}</h4>
         </div>
         <div class="card-body">
             <form method="post" action="" class="form-floating" enctype="multipart/form-data">
@@ -30,6 +30,6 @@
     <a class="btn btn-outline-dark border-dark-subtle mt-4" href="{% url 'labbook:experiment_note' object.pk %}?next={{ request.get_full_path }}" role="button">Не сохранять изменения</a>
 </div>
 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-    <a class="btn btn-warning border-dark-subtle mt-4" href="{{ request.GET.next }}" role="button" style="max-width: 215px;">Назад</a>
+    <a class="btn btn-white border-dark-subtle mt-4" href="{{ request.GET.next }}" role="button" style="max-width: 215px;">Назад</a>
 </div>
 {% endblock %}
