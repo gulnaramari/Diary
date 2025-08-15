@@ -112,7 +112,6 @@ class ProfileDeletingView(DeleteView):
         return self.object
 
 
-
 class ProfilesListView(LoginRequiredMixin, ListView):
     """Класс-Generic для эндпоинта списка сотрудников."""
 

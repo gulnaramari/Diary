@@ -31,7 +31,7 @@ class ExperimentNoteCreateView(LoginRequiredMixin, CreateView):
     model = ExperimentNote
     form_class = ExperimentNoteForm
     template_name = "adding_experiment_note.html"
-    success_url = reverse_lazy("labbook:home")
+    success_url = reverse_lazy("labbook:experiment_notes")
 
     def form_valid(self, form):
         # ставим владельца до сохранения
@@ -39,10 +39,10 @@ class ExperimentNoteCreateView(LoginRequiredMixin, CreateView):
         form.instance.owner = user
         return super().form_valid(form)
 
-    # def get_context_data(self, **kwargs):
-    #     ctx = super().get_context_data(**kwargs)
-    #     ctx["created_today"] = timezone.localdate()
-    #     return ctx
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["created_today"] = timezone.localdate()
+        return ctx
 
 
 class ExperimentNoteDetailView(LoginRequiredMixin, DetailView):
@@ -142,7 +142,7 @@ class SearchEntries(LoginRequiredMixin, View):
         user_entries = ExperimentNote.objects.filter(owner=self.request.user)
         if search_query is not None:
             experiment_notes = user_entries.filter(
-                Q(title__icontains=search_query) | Q(text__icontains=search_query)).\
+                Q(title__icontains=search_query) | Q(code_of_project__icontains=search_query)).\
                 order_by('updated_at')
 
             context['last_search_query'] = '?search_query=%s' % search_query

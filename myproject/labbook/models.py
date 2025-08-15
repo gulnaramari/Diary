@@ -39,16 +39,14 @@ class ExperimentNote(models.Model):
         default=False, verbose_name="Потери латекса во время ресуспендирования"
     )
 
-    # Оптическая плотность: 0.00..1.00, два знака
     optical_density = models.DecimalField(
         max_digits=3,
         decimal_places=2,
         default=0.00,
-        validators=[MinValueValidator(0.00), MaxValueValidator(1.00)],
+        validators=[MinValueValidator(0.00), MaxValueValidator(10.00)],
         verbose_name="Оптическая плотность реагента",
     )
 
-    # Уровень сигнала: 0.00..1.00 (как у тебя)
     signal_level = models.DecimalField(
         max_digits=3,
         decimal_places=2,
@@ -59,7 +57,7 @@ class ExperimentNote(models.Model):
 
     # pH буфера: 0.00..14.00, два знака после запятой
     storage_buffer_ph = models.DecimalField(
-        max_digits=4,              # важно! чтобы влезло 14.00
+        max_digits=4,
         decimal_places=2,
         default=0.00,
         validators=[MinValueValidator(0.00), MaxValueValidator(14.00)],
@@ -84,7 +82,7 @@ class ExperimentNote(models.Model):
 
     # Напоминание о завершении термостатирования
     reminder_date = models.DateTimeField(
-        verbose_name="Дата напоминания о завершении термостатирования", blank=True, null=True
+        verbose_name="Дата напоминания о необходимости термостатирования", blank=True, null=True
     )
 
     owner = models.ForeignKey(
