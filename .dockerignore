@@ -1,0 +1,6 @@
+.github/
+.venv/
+.flake8
+README.md
+.env
+.env.docker

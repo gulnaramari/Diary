@@ -27,7 +27,11 @@ from django.contrib import messages
 from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
-from .services import activate_user_by_token, send_welcome_email, generate_activation_token
+from .services import (
+    activate_user_by_token,
+    send_welcome_email,
+    generate_activation_token,
+)
 
 
 class RegistrationView(FormView):
@@ -39,7 +43,7 @@ class RegistrationView(FormView):
 
     def form_valid(self, form):
         """Метод вносит изменение в переданную после проверки
-         на валидацию форму регистрации сотрудника."""
+        на валидацию форму регистрации сотрудника."""
         user = form.save(commit=False)
         user.is_active = False
         user.token = generate_activation_token()
@@ -54,7 +58,13 @@ class RegistrationView(FormView):
             f"Здравствуйте, {user.last_name} {user.first_name}!\n"
             f"Для активации вашей учетной записи перейдите по ссылке:\n{activation_url}\n"
         )
-        send_mail(subject, message, settings.EMAIL_HOST_USER, [user.email], fail_silently=False)
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_HOST_USER,
+            [user.email],
+            fail_silently=False,
+        )
         return super().form_valid(form)
 
 

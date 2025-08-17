@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:16
+        image: postgres:15
         env:
           POSTGRES_DB: app
           POSTGRES_USER: app
@@ -51,7 +51,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run migrations (Postgres)
-        working-directory: myproject
+        working-directory: diary
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DEBUG: "True"
@@ -64,7 +64,7 @@ jobs:
 
       # Тесты у тебя идут на SQLite (по условию 'test' в sys.argv) — это ок.
       - name: Run tests
-        working-directory: myproject
+        working-directory: diary
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DEBUG: "True"
@@ -78,9 +78,9 @@ jobs:
       - name: Log in to Docker Hub
         run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/drf_docker:${{ github.sha }} ./myproject
+        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/diary:${{ github.sha }} .
       - name: Push Docker image
-        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/drf_docker:${{ github.sha }}
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/diary:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -115,8 +115,7 @@ jobs:
 
           # Redis / Celery
           envkey_REDIS_URL: "redis://redis:6379/1"
-          envkey_CELERY_BROKER_URL: "redis://redis:6379/0"
-          envkey_CELERY_RESULT_BACKEND: "redis://redis:6379/2"
+
 
           # Рекомендуется задать эти секреты в настройках репо
           envkey_ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
@@ -124,7 +123,7 @@ jobs:
 
       - name: Copy files to server
         run: |
-          scp -o StrictHostKeyChecking=no myproject/docker-compose.yaml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/docker-compose.yaml
+          scp -o StrictHostKeyChecking=no myproject/docker-compose.yaml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/docker-compose.prod.yaml
           scp -o StrictHostKeyChecking=no .env ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/.env
 
       - name: Deploy via SSH

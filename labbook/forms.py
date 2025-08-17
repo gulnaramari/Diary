@@ -4,6 +4,7 @@ from .models import ExperimentNote
 
 class ExperimentNoteForm(forms.ModelForm):
     """Класс формы модели "Запись в рабочем журнале"."""
+
     class Meta:
         model = ExperimentNote
         exclude = ["owner", "created_at", "updated_at"]
@@ -12,10 +13,15 @@ class ExperimentNoteForm(forms.ModelForm):
             "latex_started_at": forms.DateTimeInput(attrs={"type": "datetime-local"}),
             "latex_completed_at": forms.DateTimeInput(attrs={"type": "datetime-local"}),
             "reminder_date": forms.DateTimeInput(attrs={"type": "datetime-local"}),
-
-            "optical_density": forms.NumberInput(attrs={"step": "0.01", "min": "0", "max": "10"}),
-            "signal_level": forms.NumberInput(attrs={"step": "0.01", "min": "0", "max": "1"}),
-            "storage_buffer_ph": forms.NumberInput(attrs={"step": "0.01", "min": "0", "max": "14"}),
+            "optical_density": forms.NumberInput(
+                attrs={"step": "0.01", "min": "0", "max": "10"}
+            ),
+            "signal_level": forms.NumberInput(
+                attrs={"step": "0.01", "min": "0", "max": "1"}
+            ),
+            "storage_buffer_ph": forms.NumberInput(
+                attrs={"step": "0.01", "min": "0", "max": "14"}
+            ),
             "version_of_protocol": forms.NumberInput(attrs={"step": "1", "min": "1"}),
         }
 

@@ -65,7 +65,9 @@ class Employee(AbstractUser):
     is_active = models.BooleanField(default=True)
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["phone",]
+    REQUIRED_FIELDS = [
+        "phone",
+    ]
 
     objects = EmployeeManager()
 

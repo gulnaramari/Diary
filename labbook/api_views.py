@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from django.db.models import Q
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -69,11 +69,14 @@ from .permissions import IsOwnerOrReadOnly
 )
 class ExperimentNoteViewSet(viewsets.ModelViewSet):
     """DRF API для ExperimentNote (полностью документирован для Swagger)."""
+
     serializer_class = ExperimentNoteSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
     def get_queryset(self):
-        return ExperimentNote.objects.filter(owner=self.request.user).order_by("-updated_at")
+        return ExperimentNote.objects.filter(owner=self.request.user).order_by(
+            "-updated_at"
+        )
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -99,7 +102,14 @@ class ExperimentNoteViewSet(viewsets.ModelViewSet):
             ),
         ],
         responses={200: ExperimentNoteSerializer(many=True)},
-        examples=[OpenApiExample("Пример запроса", value=None, request_only=True, summary="?search_query=latex")],
+        examples=[
+            OpenApiExample(
+                "Пример запроса",
+                value=None,
+                request_only=True,
+                summary="?search_query=latex",
+            )
+        ],
     )
     @action(detail=False, methods=["get"], url_path="search")
     def search(self, request):
