@@ -1,7 +1,6 @@
 from decimal import Decimal
 from datetime import timedelta
-from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError, PermissionDenied
+from django.core.exceptions import PermissionDenied
 from django.test import RequestFactory
 from django.utils import timezone
 from rest_framework.test import APITestCase
@@ -9,10 +8,8 @@ from .models import ExperimentNote
 from .forms import ExperimentNoteForm
 from .views import (
     ExperimentNoteCreateView,
-    ExperimentNoteDetailView,
     ExperimentNoteUpdateView,
     ExperimentNoteDeleteView,
-    ExperimentNoteListView,
     HomePageView,
 )
 from users.models import Employee
@@ -24,13 +21,18 @@ class TestCase(APITestCase):
     def setUp(self):
         """Задает начальные данные для тестов."""
         self.factory = RequestFactory()
-        user = get_user_model()
 
         self.user1 = Employee.objects.create_user(
-            email="owner@example.com", phone="+79000000000", password="Pass!12345", is_active=True
+            email="owner@example.com",
+            phone="+79000000000",
+            password="Pass!12345",
+            is_active=True,
         )
         self.user2 = Employee.objects.create_user(
-            email="other@example.com", phone="+79000000001", password="Pass!12345", is_active=True
+            email="other@example.com",
+            phone="+79000000001",
+            password="Pass!12345",
+            is_active=True,
         )
 
         self.client.force_login(self.user1)
@@ -56,7 +58,7 @@ class TestCase(APITestCase):
         }
 
     def _create_note(self, owner, **overrides):
-        """Тест на создание записи """
+        """Тест на создание записи"""
         data = dict(self.valid_payload)
         data.update(overrides)
         note = ExperimentNote(owner=owner, **data)
@@ -66,21 +68,22 @@ class TestCase(APITestCase):
 
     def test_create_sets_owner(self):
         """Тест на присваивание записи владельцу"""
-        form = ExperimentNoteForm(data={
-
-            "code_of_project": "FORM-1",
-            "title": "Через форму",
-            "comments": "OK",
-            "status": "draft",
-            "version_of_protocol": 1,
-            "latex_started_at": self.started.strftime("%Y-%m-%d %H:%M"),
-            "latex_completed_at": self.completed.strftime("%Y-%m-%d %H:%M"),
-            "is_latex_loss": False,
-            "optical_density": "5.00",
-            "signal_level": "0.50",
-            "storage_buffer_ph": "7.00",
-            "reminder_date": self.reminder.strftime("%Y-%m-%d %H:%M"),
-        })
+        form = ExperimentNoteForm(
+            data={
+                "code_of_project": "FORM-1",
+                "title": "Через форму",
+                "comments": "OK",
+                "status": "draft",
+                "version_of_protocol": 1,
+                "latex_started_at": self.started.strftime("%Y-%m-%d %H:%M"),
+                "latex_completed_at": self.completed.strftime("%Y-%m-%d %H:%M"),
+                "is_latex_loss": False,
+                "optical_density": "5.00",
+                "signal_level": "0.50",
+                "storage_buffer_ph": "7.00",
+                "reminder_date": self.reminder.strftime("%Y-%m-%d %H:%M"),
+            }
+        )
         self.assertTrue(form.is_valid(), form.errors)
 
         request = self.factory.post("/labbook/add/", data=form.data)
@@ -110,12 +113,9 @@ class TestCase(APITestCase):
         with self.assertRaises(PermissionDenied):
             ExperimentNoteDeleteView.as_view()(request, pk=note.pk)
 
-    # --- List/Home querysets ---
-
     def test_homepage_counts_today_updates(self):
         """Тест на подсчет записей при попытке редактирования"""
-        n1 = self._create_note(self.user1, code_of_project="TODAY-1")
-        n2 = self._create_note(self.user1, code_of_project="TODAY-2")
+
         n3 = self._create_note(self.user1, code_of_project="YESTER-1")
         ExperimentNote.objects.filter(pk=n3.pk).update(
             updated_at=timezone.now() - timedelta(days=1)
@@ -128,7 +128,7 @@ class TestCase(APITestCase):
         self.assertEqual(response.context_data["count_entries"], 2)
 
     def test_form_excludes_owner_created_updated(self):
-        """Тест на исключение полей owner/created_at/updated_at """
+        """Тест на исключение полей owner/created_at/updated_at"""
         form = ExperimentNoteForm()
         for fld in ("owner", "created_at", "updated_at"):
             self.assertNotIn(fld, form.fields)

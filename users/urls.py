@@ -22,7 +22,9 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(), name="logout"),
     path("registration/", RegistrationView.as_view(), name="registration"),
     path(
-        "profile/email-confirm/<str:token>/", views.email_verification, name="email_confirm"
+        "profile/email-confirm/<str:token>/",
+        views.email_verification,
+        name="email_confirm",
     ),
     path("profile/<int:pk>/", ProfileView.as_view(), name="profile"),
     path("users/", ProfilesListView.as_view(), name="users"),

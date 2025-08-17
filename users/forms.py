@@ -11,8 +11,7 @@ from django.core.validators import RegexValidator
 
 phone_validator = RegexValidator(
     regex=r"^((\+7|7|8)+([0-9]){10})$",
-    message="Номер телефона должен быть введен в формате:"
-    '"+79999999999".',
+    message="Номер телефона должен быть введен в формате:" '"+79999999999".',
 )
 
 

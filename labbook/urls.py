@@ -1,44 +1,42 @@
-from django.urls import path
-from .apps import LabbookConfig
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
+from .api_views import ExperimentNoteViewSet
 from .views import (
+    # HTML-вьюхи
+    HomePageView,
     ExperimentNoteListView,
     ExperimentNoteCreateView,
-    HomePageView,
     ExperimentNoteDetailView,
     ExperimentNoteUpdateView,
-    ExperimentNoteDeleteView, choice_date, SearchEntries,
+    ExperimentNoteDeleteView,
+    SearchEntries,
 )
 
-app_name = LabbookConfig.name
+app_name = "labbook"
+
+router = DefaultRouter()
+router.register(r"api/notes", ExperimentNoteViewSet, basename="notes")
 
 urlpatterns = [
+    # HTML
     path("", HomePageView.as_view(), name="home"),
-
+    path("notes/", ExperimentNoteListView.as_view(), name="experiment_notes"),
     path(
-        "experiment-notes/", ExperimentNoteListView.as_view(), name="experiment_notes"
+        "notes/add/", ExperimentNoteCreateView.as_view(), name="adding_experiment_note"
     ),
+    path("notes/<int:pk>/", ExperimentNoteDetailView.as_view(), name="experiment_note"),
     path(
-        "experiment-note/new/",
-        ExperimentNoteCreateView.as_view(),
-        name="adding_experiment_note",
-    ),
-    path(
-        "experiment-note/<int:pk>/",
-        ExperimentNoteDetailView.as_view(),
-        name="experiment_note",
-    ),
-    path(
-        "experiment-note/<int:pk>/edit/",
+        "notes/<int:pk>/edit/",
         ExperimentNoteUpdateView.as_view(),
         name="editing_experiment_note",
     ),
     path(
-        "experiment-note/<int:pk>/delete/",
+        "notes/<int:pk>/delete/",
         ExperimentNoteDeleteView.as_view(),
         name="deleting_experiment_note",
     ),
-    path('choice-date/', choice_date, name='choice_date'),
-    path('search-entries/', SearchEntries.as_view(), name='search_entries'),
-
-
+    path("notes/search/", SearchEntries.as_view(), name="search_entries"),
+    # API
+    path("", include(router.urls)),
 ]

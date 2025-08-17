@@ -24,7 +24,9 @@ class ExperimentNote(models.Model):
     status = models.CharField(
         max_length=16, default="draft", verbose_name="Статус записи"
     )
-    version_of_protocol = models.IntegerField(default=1, verbose_name="Версия протокола")
+    version_of_protocol = models.IntegerField(
+        default=1, verbose_name="Версия протокола"
+    )
 
     # Активация латекса
     latex_started_at = models.DateTimeField(
@@ -82,7 +84,9 @@ class ExperimentNote(models.Model):
 
     # Напоминание о завершении термостатирования
     reminder_date = models.DateTimeField(
-        verbose_name="Дата напоминания о необходимости термостатирования", blank=True, null=True
+        verbose_name="Дата напоминания о необходимости термостатирования",
+        blank=True,
+        null=True,
     )
 
     owner = models.ForeignKey(
@@ -109,12 +113,16 @@ class ExperimentNote(models.Model):
         # завершение активации не раньше начала
         if self.latex_started_at and self.latex_completed_at:
             if self.latex_completed_at < self.latex_started_at:
-                errors["latex_completed_at"] = "Завершение активации не может быть раньше начала."
+                errors["latex_completed_at"] = (
+                    "Завершение активации не может быть раньше начала."
+                )
 
         # завершение отчёта не раньше создания
         if self.created_at and self.updated_at:
             if self.updated_at < self.created_at:
-                errors["updated_at"] = "Дата обновления отчёта не может быть раньше даты создания."
+                errors["updated_at"] = (
+                    "Дата обновления отчёта не может быть раньше даты создания."
+                )
 
         if errors:
             raise ValidationError(errors)

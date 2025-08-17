@@ -14,7 +14,7 @@ class TestCase(APITestCase):
 
     def setUp(self):
         """Задает начальные данные для тестов."""
-        self.User = get_user_model()  # В твоём проекте это Employee :contentReference[oaicite:3]{index=3}
+        self.User = (get_user_model())
 
         self.active_user = self.User.objects.create_user(
             email="active@example.com",
@@ -32,11 +32,13 @@ class TestCase(APITestCase):
             first_name="Inactive",
             last_name="User",
             is_active=False,
-            token="TESTTOKEN123",  # токен хранится в модели, см. views.email_verification :contentReference[oaicite:4]{index=4}
+            token="TESTTOKEN123",
         )
 
         self.url_registration = "/registration/"
-        self.url_login = reverse("users:login")  # AuthorizationView(LoginView) :contentReference[oaicite:7]{index=7}
+        self.url_login = reverse(
+            "users:login"
+        )
         self.url_password_recovery = "/password-recovery/"
 
     def test_registration(self):
@@ -68,10 +70,13 @@ class TestCase(APITestCase):
         """
         Тест на то, что не будет авторизации без подтверждения учетной записи.
         """
-        resp = self.client.post(self.url_login, {
-            "username": self.inactive_user.email,  # AuthenticationForm использует 'username' поле ввода :contentReference[oaicite:13]{index=13}
-            "password": "StrongPass!123",
-        })
+        resp = self.client.post(
+            self.url_login,
+            {
+                "username": self.inactive_user.email,
+                "password": "StrongPass!123",
+            },
+        )
         # LoginView при неуспехе вернёт 200 с формой и ошибкой
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Введите пароль", html=False)
@@ -87,10 +92,14 @@ class TestCase(APITestCase):
         self.inactive_user.refresh_from_db()
         self.assertTrue(self.inactive_user.is_active)
 
-        login_resp = self.client.post(self.url_login, {
-            "username": self.inactive_user.email,
-            "password": "StrongPass!123",
-        }, follow=True)
+        login_resp = self.client.post(
+            self.url_login,
+            {
+                "username": self.inactive_user.email,
+                "password": "StrongPass!123",
+            },
+            follow=True,
+        )
         self.assertIn(login_resp.status_code, (200, 302))
 
     def test_password_recovery_sets_new_password_and_sends_email(self):
@@ -98,7 +107,9 @@ class TestCase(APITestCase):
         Тест на генерацию нового пароля и отправку письма "Восстановление пароля" с новым паролем.
 
         """
-        resp = self.client.post(self.url_password_recovery, {"email": self.active_user.email}, follow=True)
+        resp = self.client.post(
+            self.url_password_recovery, {"email": self.active_user.email}, follow=True
+        )
         self.assertIn(resp.status_code, (200, 302))
 
         self.assertEqual(len(mail.outbox), 1)
@@ -108,11 +119,13 @@ class TestCase(APITestCase):
         self.assertIn("Ваш новый пароль:", body)
         new_password = body.split("Ваш новый пароль:", 1)[1].strip()
 
-
-        login_resp = self.client.post(self.url_login, {
-            "username": self.active_user.email,
-            "password": new_password,
-        })
+        login_resp = self.client.post(
+            self.url_login,
+            {
+                "username": self.active_user.email,
+                "password": new_password,
+            },
+        )
 
         self.assertIn(login_resp.status_code, (200, 302))
 
@@ -120,7 +133,9 @@ class TestCase(APITestCase):
         """
         Тест на ошибку восстановления пароля
         """
-        resp = self.client.post(self.url_password_recovery, {"email": "nope@example.com"})
+        resp = self.client.post(
+            self.url_password_recovery, {"email": "nope@example.com"}
+        )
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Такого email еще нет в системе")
         self.assertEqual(len(mail.outbox), 0)
