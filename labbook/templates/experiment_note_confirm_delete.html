@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Удаление записи{% endblock %}
+
+{% block content %}
+<h2>Удаление записи в дневнике</h2>
+<p>Вы уверены, что хотите удалить запись "{{object.title}}"?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-dark border-dark-subtle">Удалить</button>
+    <a href="{% url 'labbook:experiment_note' object.pk %}?next={{ request.GET.next }}" class="btn btn-dark border-dark-subtle">Отмена</a>
+</form>
+<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+    <a class="btn btn-warning border-dark-subtle mt-4" href="{{ request.GET.next }}" role="button" style="max-width: 215px;">Назад</a>
+</div>
+{% endblock %}`

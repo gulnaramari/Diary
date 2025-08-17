@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load entry_tags %}
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<p class="lead pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">Дневник для ведения экспериментов<br>
+    Внесите важные данные, чтобы не забыть! <br>
+<div class="row">
+    <div class="col-6">
+       <ul class="list-group px-3 py-3 pt-md-5 pb-md-4 mx-auto ml-auto">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {% if user.is_superuser %}
+                <a href="{% url 'labbook:experiment_notes' %}">Архив записей: </a>
+                {% elif user.is_authenticated %}
+                <a href="{% url 'labbook:experiment_notes' %}">Мои записи: </a>
+                {% endif %}
+                <span class="badge bg-dark rounded-pill">{{ count_entries }}</span>
+            </li>
+       </ul>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load entry_tags %}
+{% block title %}Мои записи{% endblock %}
+
+{% block content %}
+<div class="container marketing mt-5">
+    <div class="container text-center mt-3">
+        <h1></h1>
+        <div class="row justify-content-center">
+            <div class="col-12 mb-2 d-flex">
+                <form action="{% url 'labbook:search_entries' %}" class="navbar-form navbar-left flex-grow-1" method="get">
+                    <div class="input-group">
+                        <label>
+                        Поиск по записям
+                        <input id="search" name="search_query" type="text" class="form-control" placeholder="Поиск...">
+                        </label>
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-dark border-dark-subtle mt-4 ms-2">Найти</button>
+                        </span>
+                    </div>
+                </form>
+                {% if user.is_authenticated %}
+                    <a class="btn btn-dark border-dark-subtle me-auto mt-4" style="max-height: 40px;" href="{% url 'labbook:adding_experiment_note' %}">Добавить запись</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="table-responsive small">
+            <table class="table table-warning bg-gradient bg-opacity-25 table-striped">
+                <thead>
+                <tr>
+                    <th>Код проекта</th>
+                    <th>Название для отчёта</th>
+                    <th>Особенности эксперимента</th>
+                    <th>Статус</th>
+                    <th>Версия протокола</th>
+                    <th>Начало активации латекса</th>
+                    <th>Завершение активации латекса</th>
+                    <th>Потери латекса во время ресуспендирования</th>
+                    <th>Оптическая плотность реагента</th>
+                    <th>Уровень сигнала в реакции</th>
+                    <th>Значение рН буфера для хранения готового реагента</th>
+
+                    <th>Дата напоминания о необходимости термостатирования</th>
+                    <th>Изображение</th>
+                    {% if user.is_superuser %}
+                    <th>Создал(а)</th>
+                    {% endif %}
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                {% if experiment_notes %}
+                {% for object in experiment_notes %}
+                <tr>
+                    <td>{{ object.code_of_project }}</td>
+                    <td>{{ object.title }}</td>
+                    <td>{{ object.comments|truncatechars:30 }}</td>
+                    <td>{{ object.status }}</td>
+                    <td>{{ object.version_of_protocol }}</td>
+                    <td>{{ object.latex_started_at }}</td>
+                    <td>{{ object.latex_completed_at }}</td>
+                    <td>{{ object.is_latex_loss }}</td>
+                    <td>{{ object.optical_density }}</td>
+                    <td>{{ object.signal_level }}</td>
+                    <td>{{ object.storage_buffer_ph }}</td>
+
+
+                    {% if object.reminder_date is not null %}
+                    <td>{{ object.reminder_date|date:"d M Y" }}</td>
+                    {% else %}
+                    <td>Нет</td>
+                    {% endif %}
+                    <td><img src="{{ object.picture | media_filter }}" class="card-img-top w-50 h-50"></td>
+                     {% if user.is_superuser %}
+                    <td>{{ object.owner }}</td>
+                    {% endif %}
+                    <td>
+                        {% if object.owner == user %}
+                        <a class="btn btn-outline-dark border-dark-subtle btn-sm mb-2" href="{% url 'labbook:experiment_note' object.pk%}">Посмотреть </a>
+                        <a class="btn btn-outline-dark border-dark-subtle btn-sm mb-2" href="{% url 'labbook:editing_experiment_note' object.pk%}">Редактировать</a>
+                        <a class="btn btn-outline-dark border-dark-subtle btn-sm mb-2" href="{% url 'labbook:deleting_experiment_note' object.pk%}">Удалить</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor%}
+                {% else %}
+                    <p>Не найдено записи по вашему запросу<br>Попробуйте повторить запрос с другой формулировкой</p>
+                {% endif %}
+            </table>
+        </div><!-- /.row -->
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a class="btn btn-warning border-dark-subtle mt-4" href="{{ request.GET.next }}" role="button" style="max-width: 215px;">Назад</a>
+        </div>
+    </div><!-- /.container -->
+</div>
+{% endblock %}}
