@@ -1,5 +1,7 @@
+from django.urls import include
 from django.urls import path
 from .apps import LabbookConfig
+
 from .views import (
     ExperimentNoteListView,
     ExperimentNoteCreateView,
@@ -10,6 +12,9 @@ from .views import (
 )
 
 app_name = LabbookConfig.name
+
+router = DefaultRouter()
+router.register(r"api/notes", ExperimentNoteViewSet, basename="notes")
 
 urlpatterns = [
     path("", HomePageView.as_view(), name="home"),

@@ -10,11 +10,10 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, DetailView, View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from .forms import DateForm, ExperimentNoteForm
+from .forms import ExperimentNoteForm, DateForm
 from .models import ExperimentNote
 
 
-@method_decorator(cache_page(60 * 1), name='dispatch')
 class ExperimentNoteListView(LoginRequiredMixin, ListView):
     """Класс-Generic для эндпоинта списка записей об экспериментах в рабочем журнале."""
 
@@ -48,7 +47,6 @@ class ExperimentNoteCreateView(LoginRequiredMixin, CreateView):
         return ctx
 
 
-@method_decorator(cache_page(60 * 1), name='dispatch')
 class ExperimentNoteDetailView(LoginRequiredMixin, DetailView):
     """Класс Generic для эндпоинта просмотра записей в рабочем журнале."""
 
@@ -186,3 +184,5 @@ class SearchEntries(LoginRequiredMixin, View):
                 context['experiment_notes'] = current_page.page(current_page.num_pages)
 
             return render(request, template_name=self.template_name, context=context)
+
+

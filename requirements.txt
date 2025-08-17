@@ -1,8 +1,12 @@
 black==25.1.0
+coreapi==2.3.3
+coreschema==0.0.4
 coverage==7.10.3
 Django==5.2.4
 django-cors-headers==4.7.0
 djangorestframework==3.16.0
+drf-spectacular==0.28.0
+drf-spectacular-sidecar==2025.8.1
 dotenv==0.9.9
 drf-yasg==1.21.10
 pillow==11.3.0

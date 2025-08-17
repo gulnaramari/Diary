@@ -15,13 +15,13 @@ class EmployeeManager(BaseUserManager):
         email = self.normalize_email(email)
         if not phone:
             raise ValueError("Укажите номер телефона")
-        phone = self.normalize_email(phone)
+
         user = self.model(email=email, phone=phone, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password=None, **extra_fields):
+    def create_superuser(self, email, phone, password=None, **extra_fields):
         """Метод для создания пользователя с правами суперпользователя."""
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
@@ -29,7 +29,7 @@ class EmployeeManager(BaseUserManager):
             raise ValueError("Суперпользователь должен иметь is_staff=True.")
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Суперпользователь должен иметь is_superuser=True.")
-        return self.create_user(email, password, **extra_fields)
+        return self.create_user(email, phone, password, **extra_fields)
 
 
 class Employee(AbstractUser):
@@ -62,10 +62,10 @@ class Employee(AbstractUser):
     )
 
     token = models.CharField(max_length=128, blank=True, null=True, db_index=True)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ["phone",]
 
     objects = EmployeeManager()
 
