@@ -1,49 +1,31 @@
-from django.urls import include
-from django.urls import path
-from .apps import LabbookConfig
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
+from .api_views import ExperimentNoteViewSet
 from .views import (
-    ExperimentNoteListView,
-    ExperimentNoteCreateView,
+    # HTML-вьюхи
     HomePageView,
-    ExperimentNoteDetailView,
-    ExperimentNoteUpdateView,
-    ExperimentNoteDeleteView, choice_date, SearchEntries,
+    ExperimentNoteListView, ExperimentNoteCreateView,
+    ExperimentNoteDetailView, ExperimentNoteUpdateView, ExperimentNoteDeleteView,
+    SearchEntries,
+
 )
 
-app_name = LabbookConfig.name
+app_name = "labbook"
 
 router = DefaultRouter()
 router.register(r"api/notes", ExperimentNoteViewSet, basename="notes")
 
 urlpatterns = [
+    # HTML
     path("", HomePageView.as_view(), name="home"),
+    path("notes/", ExperimentNoteListView.as_view(), name="experiment_notes"),
+    path("notes/add/", ExperimentNoteCreateView.as_view(), name="experiment_note_add"),
+    path("notes/<int:pk>/", ExperimentNoteDetailView.as_view(), name="experiment_note"),
+    path("notes/<int:pk>/edit/", ExperimentNoteUpdateView.as_view(), name="experiment_note_edit"),
+    path("notes/<int:pk>/delete/", ExperimentNoteDeleteView.as_view(), name="experiment_note_delete"),
+    path("notes/search/", SearchEntries.as_view(), name="search_entries"),
 
-    path(
-        "experiment-notes/", ExperimentNoteListView.as_view(), name="experiment_notes"
-    ),
-    path(
-        "experiment-note/new/",
-        ExperimentNoteCreateView.as_view(),
-        name="adding_experiment_note",
-    ),
-    path(
-        "experiment-note/<int:pk>/",
-        ExperimentNoteDetailView.as_view(),
-        name="experiment_note",
-    ),
-    path(
-        "experiment-note/<int:pk>/edit/",
-        ExperimentNoteUpdateView.as_view(),
-        name="editing_experiment_note",
-    ),
-    path(
-        "experiment-note/<int:pk>/delete/",
-        ExperimentNoteDeleteView.as_view(),
-        name="deleting_experiment_note",
-    ),
-    path('choice-date/', choice_date, name='choice_date'),
-    path('search-entries/', SearchEntries.as_view(), name='search_entries'),
-
-
+    # API
+    path("", include(router.urls)),
 ]
