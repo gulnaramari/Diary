@@ -51,7 +51,7 @@ jobs:
 
       - name: Run migrations (Postgres)
 
-        working-directory: Diary
+        working-directory: .
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DEBUG: "True"
