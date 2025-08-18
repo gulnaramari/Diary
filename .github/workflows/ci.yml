@@ -62,7 +62,6 @@ jobs:
           POSTGRES_PORT: "5432"
         run: python manage.py migrate --noinput
 
-      # Тесты у тебя идут на SQLite (по условию 'test' в sys.argv) — это ок.
       - name: Run tests
         working-directory: .
         env:
