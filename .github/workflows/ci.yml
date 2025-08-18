@@ -25,7 +25,8 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U app -d app"
+          # ✔ исправлено: проверяем существующие БД/юзера
+          --health-cmd="pg_isready -U mariam -d diary"
           --health-interval=5s
           --health-timeout=3s
           --health-retries=20
@@ -50,8 +51,6 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run migrations (Postgres)
-
-        working-directory: .
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DEBUG: "True"
@@ -63,7 +62,6 @@ jobs:
         run: python manage.py migrate --noinput
 
       - name: Run tests
-        working-directory: .
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DEBUG: "True"
@@ -82,12 +80,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           logout: true
 
-
       - name: Build and push image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
-
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/diary-web:latest
@@ -96,64 +92,71 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-
+    timeout-minutes: 60
     concurrency:
-      group: prod-deploy
+      group: prod-deploy-${{ github.ref }}   # один деплой на ветку
       cancel-in-progress: true
 
     steps:
-      - uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
+      # ⬇️ Надёжная замена webfactory/ssh-agent
+      - name: Setup SSH
+        run: |
+          umask 077
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.SERVER_IP }}" >> ~/.ssh/known_hosts
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
+      # ⚠️ Имя переменной: используем DOCKERHUB_USERNAME (как в build)
       - name: Create .env file
         uses: SpicyPizza/create-envfile@v2
         with:
           envkey_SECRET_KEY: ${{ secrets.SECRET_KEY }}
           envkey_DEBUG: "False"
-          envkey_DOCKER_HUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          envkey_DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           envkey_IMAGE_TAG: ${{ github.sha }}
 
-
-          # Postgres (секреты так и назови в репозитории: POSTGRES_DB/USER/PASSWORD)
+          # Postgres
           envkey_POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           envkey_POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           envkey_POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           envkey_POSTGRES_HOST: "db"
           envkey_POSTGRES_PORT: "5432"
 
-          # Redis / Celery
+          # Redis
           envkey_REDIS_URL: "redis://redis:6379/1"
 
-
-          # Рекомендуется задать эти секреты в настройках репо
+          # Django
           envkey_ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
           envkey_CSRF_TRUSTED_ORIGINS: ${{ secrets.CSRF_TRUSTED_ORIGINS }}
 
       - name: Copy files to server
         run: |
-          scp -o StrictHostKeyChecking=no docker-compose.prod.yaml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/docker-compose.prod.yaml
-          scp -o StrictHostKeyChecking=no .env ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/.env
+          scp -o StrictHostKeyChecking=yes docker-compose.prod.yaml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/docker-compose.prod.yaml
+          scp -o StrictHostKeyChecking=yes .env ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/.env
 
       - name: Deploy via SSH
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=yes ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             set -euo pipefail
             cd ~
-                               
             echo '${{ secrets.DOCKERHUB_TOKEN }}' | sudo docker login -u '${{ secrets.DOCKERHUB_USERNAME }}' --password-stdin || true
-          
-            # тянем образы и поднимаем стэк
-            sudo docker compose pull
-            sudo docker compose down --remove-orphans
-            sudo docker compose up -d --remove-orphans
-          
-            # миграции и статика (в отдельном одноразовом контейнере web)
-            sudo docker compose run --rm web python manage.py migrate --noinput
-            sudo docker compose run --rm web python manage.py collectstatic --noinput
-            
-            # посмотреть статусы
-            sudo docker compose ps
+
+            # Диагностика: убедимся, что compose видит правильные образы и теги
+            sudo docker compose -f docker-compose.prod.yaml --env-file .env config | grep -i image || true
+
+            # Если Celery НЕ нужна — поднимаем только web/db/redis
+            sudo docker compose -f docker-compose.prod.yaml --env-file .env pull web db redis
+            sudo docker compose -f docker-compose.prod.yaml --env-file .env down --remove-orphans
+            sudo docker compose -f docker-compose.prod.yaml --env-file .env up -d web db redis
+
+            # миграции и статика
+            sudo docker compose -f docker-compose.prod.yaml --env-file .env run --rm web python manage.py migrate --noinput
+            sudo docker compose -f docker-compose.prod.yaml --env-file .env run --rm web python manage.py collectstatic --noinput
+
+            sudo docker compose -f docker-compose.prod.yaml --env-file .env ps
           EOF
