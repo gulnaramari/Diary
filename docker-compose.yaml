@@ -25,7 +25,7 @@ services:
 
   web:
     build: .
-    image: diary-web
+    image: gulnaramari/diary-web:latest
     env_file: .env.docker
     depends_on:
       db:
