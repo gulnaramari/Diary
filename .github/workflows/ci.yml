@@ -84,7 +84,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    working-directory: ./Diary
     concurrency:
       group: prod-deploy
       cancel-in-progress: true
