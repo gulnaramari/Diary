@@ -73,22 +73,25 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: test
+    if: github.event_name == 'push'      # пушим образы только на push, не на PR
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
       - name: Log in to Docker Hub
-        if: github.event_name != 'pull_request'        # секреты не доступны из fork PR
         uses: docker/login-action@v3
         with:
-            username: ${{ secrets.DOCKERHUB_USERNAME }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
-            context: .
-            push: true
-            tags: ${{ secrets.DOCKERHUB_USERNAME }}/diary:latest
-      - name: Push Docker image
-        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/diary:${{ github.sha }}
+          context: .                         # при необходимости смените на ${{ env.PROJECT_DIR }}
+          # file: Diary/Dockerfile           # раскомментируйте, если Dockerfile не в корне
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/diary:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/diary:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
