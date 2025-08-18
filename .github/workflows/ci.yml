@@ -50,7 +50,10 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run migrations (Postgres)
-        working-directory: diary
+
+        defaults:
+          run:
+            working-directory: Diary
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DEBUG: "True"
