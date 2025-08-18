@@ -90,8 +90,8 @@ jobs:
 
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/diary:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/diary:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/diary-web:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/diary-web:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
