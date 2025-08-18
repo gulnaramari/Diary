@@ -80,8 +80,12 @@ jobs:
         with:
             username: ${{ secrets.DOCKERHUB_USERNAME }}
             password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/diary:${{ github.sha }} .
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+            context: .
+            push: true
+            tags: ${{ secrets.DOCKERHUB_USERNAME }}/diary:latest
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/diary:${{ github.sha }}
 
