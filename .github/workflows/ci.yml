@@ -153,6 +153,7 @@ jobs:
             # миграции и статика (в отдельном одноразовом контейнере web)
             sudo docker compose run --rm web python manage.py migrate --noinput
             sudo docker compose run --rm web python manage.py collectstatic --noinput
+            
             # посмотреть статусы
             sudo docker compose ps
           EOF
