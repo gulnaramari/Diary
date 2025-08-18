@@ -79,18 +79,18 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
-          context: .                         # при необходимости смените на ${{ env.PROJECT_DIR }}
-          # file: Diary/Dockerfile           # раскомментируйте, если Dockerfile не в корне
+          context: .
+
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/diary:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/diary:${{ github.sha }}
+            ${{ secrets.DOCKER_HUB_USERNAME }}/diary:latest
+            ${{ secrets.DOCKER_HUB_USERNAME }}/diary:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
