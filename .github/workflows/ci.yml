@@ -51,7 +51,7 @@ jobs:
 
       - name: Run migrations (Postgres)
 
-        working-directory: Diary
+        working-directory: .
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DEBUG: "True"
@@ -64,7 +64,7 @@ jobs:
 
       # Тесты у тебя идут на SQLite (по условию 'test' в sys.argv) — это ок.
       - name: Run tests
-        working-directory: Diary
+        working-directory: .
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DEBUG: "True"
