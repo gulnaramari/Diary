@@ -133,10 +133,9 @@ jobs:
           envkey_CSRF_TRUSTED_ORIGINS: ${{ secrets.CSRF_TRUSTED_ORIGINS }}
 
       - name: Copy files to server
-                - name: Copy files to server
-                run: |
-                  scp -o StrictHostKeyChecking=no docker-compose.prod.yaml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/docker-compose.yml
-                  scp -o StrictHostKeyChecking=no .env ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/.env
+        run: |
+          scp -o StrictHostKeyChecking=no docker-compose.prod.yaml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/docker-compose.yml
+          scp -o StrictHostKeyChecking=no .env ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/.env
 
       - name: Deploy via SSH
         run: |
