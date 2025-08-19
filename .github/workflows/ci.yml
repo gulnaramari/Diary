@@ -106,35 +106,36 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
+      # Сгенерим .env, который будет использоваться контейнером web
       - name: Create .env file
         uses: SpicyPizza/create-envfile@v2
         with:
           envkey_SECRET_KEY: ${{ secrets.SECRET_KEY }}
           envkey_DEBUG: "False"
+
+          # Имя и тег образа: важно, чтобы совпадало с docker-compose.prod.yaml
           envkey_DOCKER_HUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           envkey_IMAGE_TAG: ${{ github.sha }}
 
-
-          # Postgres (секреты так и назови в репозитории: POSTGRES_DB/USER/PASSWORD)
+          # БД
           envkey_POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           envkey_POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           envkey_POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           envkey_POSTGRES_HOST: "db"
           envkey_POSTGRES_PORT: "5432"
 
-          # Redis / Celery
-          envkey_REDIS_URL: "redis://redis:6379/1"
+          # Если Redis не нужен — закомментируйте следующую строку и уберите redis из compose
+          # envkey_REDIS_URL: "redis://redis:6379/1"
 
-
-          # Рекомендуется задать эти секреты в настройках репо
+          # Django host-sec
           envkey_ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
           envkey_CSRF_TRUSTED_ORIGINS: ${{ secrets.CSRF_TRUSTED_ORIGINS }}
 
       - name: Copy files to server
         run: |
-          scp -o StrictHostKeyChecking=no docker-compose.prod.yaml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/docker-compose.yml
+          scp -o StrictHostKeyChecking=no docker-compose.prod.yaml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/docker-compose.prod.yaml
           scp -o StrictHostKeyChecking=no .env ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/.env
 
       - name: Deploy via SSH
@@ -142,16 +143,23 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             set -euo pipefail
             cd ~
-                               
+
+            # на всякий случай покажем, какой файл будем использовать
+            test -f docker-compose.prod.yaml && echo "Found docker-compose.prod.yaml"
+
+            # в домашке могут лежать старые docker-compose.yml/.yaml — мы их игнорируем, всегда указываем -f
             echo '${{ secrets.DOCKERHUB_TOKEN }}' | sudo docker login -u '${{ secrets.DOCKERHUB_USERNAME }}' --password-stdin || true
-            # тянем образы и поднимаем стэк
-            sudo docker compose pull
-            sudo docker compose down --remove-orphans
-            sudo docker compose up -d --remove-orphans
-            # миграции и статика (в отдельном одноразовом контейнере web)
-            sudo docker compose run --rm web python manage.py migrate --noinput
-            sudo docker compose run --rm web python manage.py collectstatic --noinput
-            
-            # посмотреть статусы
-            sudo docker compose ps
-          EOF          
+
+            sudo docker compose -f docker-compose.prod.yaml pull
+            sudo docker compose -f docker-compose.prod.yaml down --remove-orphans
+            sudo docker compose -f docker-compose.prod.yaml up -d --remove-orphans
+
+            # миграции/статика одноразово в контейнере web
+            sudo docker compose -f docker-compose.prod.yaml run --rm web python manage.py migrate --noinput
+            sudo docker compose -f docker-compose.prod.yaml run --rm web python manage.py collectstatic --noinput
+
+            # проверить какие сервисы реально активны
+            sudo docker compose -f docker-compose.prod.yaml ps
+            # и какие сервисы описаны в файле (на всякий случай убедимся, что там нет celery)
+            sudo docker compose -f docker-compose.prod.yaml config --services
+          EOF
