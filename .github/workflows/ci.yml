@@ -144,7 +144,6 @@ jobs:
             cd ~
                                
             echo '${{ secrets.DOCKERHUB_TOKEN }}' | sudo docker login -u '${{ secrets.DOCKERHUB_USERNAME }}' --password-stdin || true
-          
             # тянем образы и поднимаем стэк
             sudo docker compose pull
             sudo docker compose down --remove-orphans
