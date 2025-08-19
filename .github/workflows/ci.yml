@@ -149,11 +149,10 @@ jobs:
             sudo docker compose pull
             sudo docker compose down --remove-orphans
             sudo docker compose up -d --remove-orphans
-          
             # миграции и статика (в отдельном одноразовом контейнере web)
             sudo docker compose run --rm web python manage.py migrate --noinput
             sudo docker compose run --rm web python manage.py collectstatic --noinput
             
             # посмотреть статусы
             sudo docker compose ps
-          EOF
+          EOF          
