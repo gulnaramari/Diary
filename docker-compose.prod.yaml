@@ -26,7 +26,7 @@ services:
   web:
     build: .
     image: gulnaramari/diary-web:latest
-    env_file: .env.docker
+    env_file: .env
     depends_on:
       db:
         condition: service_healthy
