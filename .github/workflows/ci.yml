@@ -1,5 +1,4 @@
 name: Django CI
-
 on: [push, pull_request]
 
 jobs:
@@ -20,9 +19,9 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_DB: app
-          POSTGRES_USER: app
-          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: diary
+          POSTGRES_USER: mariam
+          POSTGRES_PASSWORD: Mariam
         ports:
           - 5432:5432
         options: >-
@@ -51,20 +50,20 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run migrations (Postgres)
-        working-directory: diary
+
+        working-directory: .
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DEBUG: "True"
-          POSTGRES_DB: app
-          POSTGRES_USER: app
-          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: diary
+          POSTGRES_USER: mariam
+          POSTGRES_PASSWORD: Mariam
           POSTGRES_HOST: "127.0.0.1"
           POSTGRES_PORT: "5432"
         run: python manage.py migrate --noinput
 
-      # Тесты у тебя идут на SQLite (по условию 'test' в sys.argv) — это ок.
       - name: Run tests
-        working-directory: diary
+        working-directory: .
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DEBUG: "True"
@@ -74,17 +73,30 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
-      - uses: actions/checkout@v3
-      - name: Log in to Docker Hub
-        run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-      - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/diary:${{ github.sha }} .
-      - name: Push Docker image
-        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/diary:${{ github.sha }}
+      - uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          logout: true
+
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/diary-web:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/diary-web:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
+
     concurrency:
       group: prod-deploy
       cancel-in-progress: true
@@ -94,36 +106,36 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      # Генерим .env для сервера (web/db/redis/celery его прочитают через env_file: .env)
+      # Сгенерим .env, который будет использоваться контейнером web
       - name: Create .env file
         uses: SpicyPizza/create-envfile@v2
         with:
           envkey_SECRET_KEY: ${{ secrets.SECRET_KEY }}
           envkey_DEBUG: "False"
-          envkey_DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+
+          # Имя и тег образа: важно, чтобы совпадало с docker-compose.prod.yaml
+          envkey_DOCKER_HUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           envkey_IMAGE_TAG: ${{ github.sha }}
 
-
-          # Postgres (секреты так и назови в репозитории: POSTGRES_DB/USER/PASSWORD)
+          # БД
           envkey_POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           envkey_POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           envkey_POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           envkey_POSTGRES_HOST: "db"
           envkey_POSTGRES_PORT: "5432"
 
-          # Redis / Celery
-          envkey_REDIS_URL: "redis://redis:6379/1"
+          # Если Redis не нужен — закомментируйте следующую строку и уберите redis из compose
+          # envkey_REDIS_URL: "redis://redis:6379/1"
 
-
-          # Рекомендуется задать эти секреты в настройках репо
+          # Django host-sec
           envkey_ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
           envkey_CSRF_TRUSTED_ORIGINS: ${{ secrets.CSRF_TRUSTED_ORIGINS }}
 
       - name: Copy files to server
         run: |
-          scp -o StrictHostKeyChecking=no myproject/docker-compose.yaml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/docker-compose.prod.yaml
+          scp -o StrictHostKeyChecking=no docker-compose.prod.yaml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/docker-compose.prod.yaml
           scp -o StrictHostKeyChecking=no .env ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/.env
 
       - name: Deploy via SSH
@@ -131,18 +143,23 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             set -euo pipefail
             cd ~
-                               
-            echo '${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}' | sudo docker login -u '${{ secrets.DOCKER_HUB_USERNAME }}' --password-stdin || true
-          
-            # тянем образы и поднимаем стэк
-            sudo docker compose pull
-            sudo docker compose down --remove-orphans
-            sudo docker compose up -d --remove-orphans
-          
-            # миграции и статика (в отдельном одноразовом контейнере web)
-            sudo docker compose run --rm web python manage.py migrate --noinput
-            sudo docker compose run --rm web python manage.py collectstatic --noinput
-          
-            # посмотреть статусы
-            sudo docker compose ps
+
+            # на всякий случай покажем, какой файл будем использовать
+            test -f docker-compose.prod.yaml && echo "Found docker-compose.prod.yaml"
+
+            # в домашке могут лежать старые docker-compose.yml/.yaml — мы их игнорируем, всегда указываем -f
+            echo '${{ secrets.DOCKERHUB_TOKEN }}' | sudo docker login -u '${{ secrets.DOCKERHUB_USERNAME }}' --password-stdin || true
+
+            sudo docker compose -f docker-compose.prod.yaml pull
+            sudo docker compose -f docker-compose.prod.yaml down --remove-orphans
+            sudo docker compose -f docker-compose.prod.yaml up -d --remove-orphans
+
+            # миграции/статика одноразово в контейнере web
+            sudo docker compose -f docker-compose.prod.yaml run --rm web python manage.py migrate --noinput
+            sudo docker compose -f docker-compose.prod.yaml run --rm web python manage.py collectstatic --noinput
+
+            # проверить какие сервисы реально активны
+            sudo docker compose -f docker-compose.prod.yaml ps
+            # и какие сервисы описаны в файле (на всякий случай убедимся, что там нет celery)
+            sudo docker compose -f docker-compose.prod.yaml config --services
           EOF

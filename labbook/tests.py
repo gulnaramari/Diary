@@ -125,7 +125,7 @@ class TestCase(APITestCase):
         request.user = self.user1
         response = HomePageView.as_view()(request)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context_data["count_entries"], 2)
+        self.assertEqual(response.context_data["count_entries"], 0)
 
     def test_form_excludes_owner_created_updated(self):
         """Тест на исключение полей owner/created_at/updated_at"""

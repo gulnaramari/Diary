@@ -1,4 +1,5 @@
 services:
+
   db:
     image: postgres:15
     environment:
@@ -15,7 +16,7 @@ services:
     restart: unless-stopped
 
   redis:
-    image: redis:3
+    image: redis:7-alpine
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -25,8 +26,8 @@ services:
 
   web:
     build: .
-    image: diary-web
-    env_file: .env.docker
+    image: gulnaramari/diary-web:latest
+    env_file: .env
     depends_on:
       db:
         condition: service_healthy
@@ -34,12 +35,8 @@ services:
         condition: service_healthy
     ports:
       - "8080:8000"
-    # Для продакшена лучше так:
-    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60
-
+    command: ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "60"]
     restart: unless-stopped
-
 
 volumes:
   db_data:
-
